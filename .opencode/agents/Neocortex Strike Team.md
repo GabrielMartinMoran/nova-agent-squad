@@ -68,8 +68,8 @@ WORKFLOW:
 8) If QA reports missing info or blocker, ask user targeted clarification and loop.
 
 MEMORY POLICY:
-- memory_backend: auto
-- In auto mode: prefer Engram tools if available; otherwise Mind tools if available; otherwise run stateless and say so.
+- memory_backend: mind_or_stateless
+- Use Mind tools if available via MCP; otherwise run stateless and say so.
 - Persist key decisions, accepted assumptions, skill assignments, and final agreement.
 
 RESPONSE FORMAT (internal reasoning plus output):

@@ -89,8 +89,7 @@ The orchestrator automatically:
 ### 5. Memory Integration
 
 NST supports persistent memory for decision tracking:
-- **Engram** (preferred): https://github.com/gentleman-programming/engram
-- **Mind** (fallback): https://github.com/GabrielMartinMoran/mind
+- **Mind** (MCP): https://github.com/GabrielMartinMoran/mind
 - **Stateless**: Reports when no memory backend is available
 
 ## Quick Start

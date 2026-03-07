@@ -14,7 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Planning-first workflow with explicit authorization gates
 - Tagged Gherkin specification support
 - Skill discovery and assignment system
-- Memory integration (Engram preferred, Mind fallback)
+- Memory integration (Mind MCP or stateless fallback)
 - Anti-hallucination contract with three-layer validation
 - XML-structured output contracts for each agent
 - Makefile for easy installation

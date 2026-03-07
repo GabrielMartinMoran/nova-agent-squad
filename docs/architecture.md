@@ -232,20 +232,18 @@ skill_assignment:
 
 ### Backend Priority
 
-1. **Engram** (preferred): Primary memory backend
-2. **Mind**: Fallback when Engram unavailable
-3. **Stateless**: Report when no backend available
+1. **Mind**: Primary memory backend via MCP
+2. **Stateless**: Report when no backend available
 
 ### Auto-Detection
 
 ```yaml
-memory_backend: auto
+memory_backend: mind_or_stateless
 ```
 
-In auto mode:
-- Check for Engram MCP tools
-- If not found, check for Mind MCP tools
-- If neither, operate stateless and say so
+In `mind_or_stateless` mode:
+- Check for Mind MCP tools
+- If not found, operate stateless and say so
 
 ### What Gets Persisted
 
@@ -406,5 +404,4 @@ Developer ──fix──► QA ──approve──► Orchestrator ──notify
 - [OpenCode Permissions](https://opencode.ai/docs/permissions/)
 - [OpenCode Skills](https://opencode.ai/docs/skills/)
 - [Gherkin Language](https://cucumber.io/docs/gherkin/)
-- [Engram Memory](https://github.com/gentleman-programming/engram)
 - [Mind Memory](https://github.com/GabrielMartinMoran/mind)
