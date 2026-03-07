@@ -25,9 +25,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 | Agent | Description |
 |-------|-------------|
 | `Neocortex Strike Team` | Primary orchestrator (manager + tech lead) |
-| `cst_researcher` | Technical researcher with Gherkin output |
-| `cst_developer` | TDD-focused implementation agent |
-| `cst_qa` | Strict QA validator with English status reports |
+| `nst_researcher` | Technical researcher with Gherkin output |
+| `nst_developer` | TDD-focused implementation agent |
+| `nst_qa` | Strict QA validator with English status reports |
 
 ### Features
 

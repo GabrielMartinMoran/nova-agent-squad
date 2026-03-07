@@ -25,7 +25,7 @@ Neocortex Strike Team (NST) is a four-agent system built on OpenCode's agent fra
 │         ┌──────────────────┼──────────────────┐                   │
 │         ▼                  ▼                  ▼                   │
 │  ┌─────────────┐   ┌─────────────┐   ┌─────────────┐             │
-│  │    cst_      │   │   cst_      │   │    cst_     │             │
+│  │    nst_      │   │   nst_      │   │    nst_     │             │
 │  │  researcher  │   │  developer  │   │     qa      │             │
 │  └─────────────┘   └─────────────┘   └─────────────┘             │
 └─────────────────────────────────────────────────────────────────┘
@@ -56,7 +56,7 @@ The orchestrator acts as Manager and Tech Lead. It is the only agent that intera
 - Always confirm assumptions before proceeding
 - Request explicit apply authorization before delegation
 
-### 2. cst_researcher
+### 2. nst_researcher
 
 **Mode**: Subagent (hidden)  
 **Permissions**: Read, search, webfetch; no edit, no bash
@@ -88,7 +88,7 @@ Feature: [Name]
 </gherkin>
 ```
 
-### 3. cst_developer
+### 3. nst_developer
 
 **Mode**: Subagent (hidden)  
 **Permissions**: Full edit, bash, webfetch
@@ -119,7 +119,7 @@ Action: [File changed or command executed]
 </tdd_cycle>
 ```
 
-### 4. cst_qa
+### 4. nst_qa
 
 **Mode**: Subagent (hidden)  
 **Permissions**: Read, bash; no edit
@@ -272,9 +272,9 @@ In auto mode:
 permission:
   task:
     "*": deny
-    "cst_researcher": allow
-    "cst_developer": allow
-    "cst_qa": allow
+    "nst_researcher": allow
+    "nst_developer": allow
+    "nst_qa": allow
 ```
 
 ## Workflow Diagram

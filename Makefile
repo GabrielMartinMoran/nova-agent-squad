@@ -27,7 +27,10 @@ install: check-deps
 
 uninstall:
 	@echo "Uninstalling Neocortex Strike Team agents..."
-	@rm -f ~/.config/opencode/agents/*.md
+	@rm -f ~/.config/opencode/agents/"Neocortex Strike Team.md"
+	@rm -f ~/.config/opencode/agents/nst_researcher.md
+	@rm -f ~/.config/opencode/agents/nst_developer.md
+	@rm -f ~/.config/opencode/agents/nst_qa.md
 	@echo "✓ Agents removed from ~/.config/opencode/agents/"
 	@echo ""
 	@echo "Note: This removes only the agent files."
@@ -36,7 +39,7 @@ uninstall:
 validate: check-deps
 	@echo "Validating agent structure..."
 	@# Check all required agent files exist
-	@for agent in "Neocortex Strike Team" cst_researcher cst_developer cst_qa; do \
+	@for agent in "Neocortex Strike Team" nst_researcher nst_developer nst_qa; do \
 		if [ -f ".opencode/agents/$$agent.md" ]; then \
 			echo "✓ $$agent.md"; \
 		else \

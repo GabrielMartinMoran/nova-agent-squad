@@ -42,9 +42,9 @@ AI coding assistants are powerful but prone to hallucinations, scope drift, and 
 | Agent | Mode | Role |
 |-------|------|------|
 | `Neocortex Strike Team` | primary | Orchestrator - coordinates, challenges requests, delegates |
-| `cst_researcher` | subagent | Maps codebase, checks feasibility, outputs Gherkin |
-| `cst_developer` | subagent | TDD implementation from approved contract only |
-| `cst_qa` | subagent | Validates against contract, Gherkin, and quality gates |
+| `nst_researcher` | subagent | Maps codebase, checks feasibility, outputs Gherkin |
+| `nst_developer` | subagent | TDD implementation from approved contract only |
+| `nst_qa` | subagent | Validates against contract, Gherkin, and quality gates |
 
 ## Features
 
@@ -173,9 +173,9 @@ neocortex-strike-team/
 ├── .opencode/
 │   └── agents/
 │       ├── Neocortex Strike Team.md   # Primary orchestrator
-│       ├── cst_researcher.md          # Research/spec agent
-│       ├── cst_developer.md            # Implementation agent
-│       └── cst_qa.md                  # Validation agent
+│       ├── nst_researcher.md          # Research/spec agent
+│       ├── nst_developer.md            # Implementation agent
+│       └── nst_qa.md                  # Validation agent
 ├── docs/
 │   ├── architecture.md                # Detailed architecture docs
 │   └── AGENTS.md                      # Agent versioning guide
