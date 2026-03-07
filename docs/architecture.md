@@ -1,0 +1,410 @@
+# Neocortex Strike Team Architecture
+
+This document provides a detailed technical overview of the Neocortex Strike Team architecture, including agent roles, communication protocols, permissions, and the anti-hallucination system.
+
+## System Overview
+
+Neocortex Strike Team (NST) is a four-agent system built on OpenCode's agent framework. Each agent has a specific role, strict permissions, and communicates through structured XML contracts.
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                      USER                                       │
+│                          │                                      │
+│                          ▼                                      │
+│  ┌─────────────────────────────────────────────────────────┐   │
+│  │          Neocortex Strike Team (Orchestrator)           │   │
+│  │  ┌─────────────────────────────────────────────────────┐│   │
+│  │  │ • Plans and coordinates                             ││   │
+│  │  │ • Challenges weak requests                          ││   │
+│  │  │ • Manages authorization gates                       ││   │
+│  │  │ • Delegates to subagents                            ││   │
+│  │  │ • NEVER edits code                                   ││   │
+│  │  └─────────────────────────────────────────────────────┘│   │
+│  └──────────────────────────┬────────────────────────────────┘   │
+│                             │                                     │
+│         ┌──────────────────┼──────────────────┐                   │
+│         ▼                  ▼                  ▼                   │
+│  ┌─────────────┐   ┌─────────────┐   ┌─────────────┐             │
+│  │    cst_      │   │   cst_      │   │    cst_     │             │
+│  │  researcher  │   │  developer  │   │     qa      │             │
+│  └─────────────┘   └─────────────┘   └─────────────┘             │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+## Agent Roles
+
+### 1. Neocortex Strike Team (Orchestrator)
+
+**Mode**: Primary  
+**Permissions**: No edit, no bash, task delegation only
+
+The orchestrator acts as Manager and Tech Lead. It is the only agent that interacts directly with the user.
+
+**Responsibilities**:
+- Receive and clarify requirements
+- Build the Agreement Contract (scope, constraints, assumptions)
+- Discover and assign skills
+- Delegate to Researcher for feasibility analysis
+- Present findings and request user authorization
+- Delegate to Developer for implementation
+- Delegate to QA for validation
+- Handle blockers and escalation
+
+**Key Rules**:
+- Never write code
+- Never edit files
+- Always confirm assumptions before proceeding
+- Request explicit apply authorization before delegation
+
+### 2. cst_researcher
+
+**Mode**: Subagent (hidden)  
+**Permissions**: Read, search, webfetch; no edit, no bash
+
+The researcher analyzes the codebase and produces formal specifications.
+
+**Responsibilities**:
+- Map codebase and identify impacted areas
+- Research external documentation and alternatives
+- Output tagged Gherkin scenarios
+- Validate skill requirements
+- Report feasibility and risks
+
+**Output Format**:
+```xml
+<feasibility>
+(Feasibility summary, impacted files, risks)
+</feasibility>
+<researched_alternatives>
+(What was researched and recommended approach)
+</researched_alternatives>
+<gherkin>
+@tag1 @tag2
+Feature: [Name]
+  Scenario: [Scenario 1]
+    Given [Context]
+    When [Action]
+    Then [Expected result]
+</gherkin>
+```
+
+### 3. cst_developer
+
+**Mode**: Subagent (hidden)  
+**Permissions**: Full edit, bash, webfetch
+
+The developer implements features using strict TDD methodology.
+
+**Responsibilities**:
+- Validate authorization metadata
+- Write failing tests (RED)
+- Implement minimum code to pass (GREEN)
+- Refactor for clarity
+- Run linters and formatters
+- Execute integration tests
+- Provide handoff to QA
+
+**Pre-Flight Checks**:
+```yaml
+apply_approved: true
+approval_scope: [feature identifier]
+approved_by_user: [explicit confirmation]
+```
+
+**TDD Cycle**:
+```xml
+<tdd_cycle>
+Phase: [Red|Green|Refactor|Linting|Integration]
+Action: [File changed or command executed]
+</tdd_cycle>
+```
+
+### 4. cst_qa
+
+**Mode**: Subagent (hidden)  
+**Permissions**: Read, bash; no edit
+
+The QA agent validates implementation against specifications.
+
+**Responsibilities**:
+- Execute test suites
+- Verify Gherkin alignment
+- Check for code quality issues
+- Detect scope drift
+- Validate authorization
+- Report with structured status
+
+**Status Values** (English):
+- `APPROVED`: Implementation matches contract and passes all checks
+- `REJECTED`: Issues found, fix required
+- `BLOCKED`: Missing or contradictory requirements
+
+**Output Format**:
+```xml
+<qa_status>
+Status: [APPROVED|REJECTED|BLOCKED]
+</qa_status>
+<validation_details>
+(List of checks performed and evidence)
+</validation_details>
+<required_action>
+(If REJECTED: fix instructions.
+ If BLOCKED: question for Orchestrator)
+</required_action>
+```
+
+## Authorization System
+
+### The Three-Layer Guard
+
+```
+Layer 1: Orchestrator Gate
+    │
+    ▼
+"Implementation plan ready. Apply now?"
+    │
+    ▼
+Layer 2: Developer Pre-Flight
+    │
+    ├── apply_approved: true?
+    ├── approval_scope matches?
+    └── approved_by_user confirmed?
+    │
+    ▼
+Layer 3: QA Verification
+    │
+    ├── Tests pass?
+    ├── Contract met?
+    └── Authorization valid?
+```
+
+### Authorization Metadata
+
+When the orchestrator delegates to developer, it must include:
+
+```yaml
+apply_authorization:
+  approved: true
+  approval_scope: "user-authentication-feature"
+  approved_by_user: "yes apply it"
+  timestamp: "2025-03-07T10:30:00Z"
+```
+
+### Scope Rules
+
+- Authorization is **single-use per scope**
+- After one feature is applied, new features require new authorization
+- Prior approvals do NOT auto-apply to subsequent changes
+- Each change scope is explicitly named in the authorization
+
+## Skill System
+
+### Discovery
+
+The orchestrator discovers skills from:
+1. **Project-level**: `./.opencode/skills/`
+2. **Global-level**: `~/.config/opencode/skills/`
+
+### Assignment Contract
+
+```yaml
+skill_assignment:
+  available_skills:
+    - tdd
+    - react
+    - typescript
+  required_by_role:
+    researcher: []
+    developer: [tdd, typescript]
+    qa: []
+    orchestrator: []
+  missing_skills: []
+  critical_missing: []
+```
+
+### Skill Validation
+
+- **Orchestrator**: Validates at planning time
+- **Developer**: Validates in pre-flight; returns BLOCKED if missing
+- **QA**: Validates before testing; returns BLOCKED if can't validate
+
+## Memory Integration
+
+### Backend Priority
+
+1. **Engram** (preferred): Primary memory backend
+2. **Mind**: Fallback when Engram unavailable
+3. **Stateless**: Report when no backend available
+
+### Auto-Detection
+
+```yaml
+memory_backend: auto
+```
+
+In auto mode:
+- Check for Engram MCP tools
+- If not found, check for Mind MCP tools
+- If neither, operate stateless and say so
+
+### What Gets Persisted
+
+- Agreement contracts
+- Accepted assumptions
+- Skill assignments
+- Key decisions
+- Final approvals
+
+## Permissions Matrix
+
+| Tool | Orchestrator | Researcher | Developer | QA |
+|------|-------------|-----------|----------|-----|
+| read | ✓ | ✓ | ✓ | ✓ |
+| edit | ✗ | ✗ | ✓ | ✗ |
+| bash | ✗ | ✗ | ✓ | ✓ |
+| webfetch | ✓ | ✓ | ✓ | ✓ |
+| task | ✓ (restricted) | ✗ | ✗ | ✗ |
+| grep/glob | ✓ | ✓ | ✓ | ✓ |
+
+### Task Permissions (Orchestrator)
+
+```yaml
+permission:
+  task:
+    "*": deny
+    "cst_researcher": allow
+    "cst_developer": allow
+    "cst_qa": allow
+```
+
+## Workflow Diagram
+
+```
+User Request
+     │
+     ▼
+┌────────────┐
+│Clarify     │◄── Questions to user
+│Ambiguities │
+└─────┬──────┘
+      │
+      ▼
+┌────────────┐
+│Discover    │
+│Skills      │
+└─────┬──────┘
+      │
+      ▼
+┌────────────┐
+│Delegate to │◄── Researcher gets contract
+│Researcher  │
+└─────┬──────┘
+      │
+      ▼
+┌────────────┐
+│Receive     │
+│Gherkin     │
+└─────┬──────┘
+      │
+      ▼
+┌────────────┐
+│Present     │◄── User reviews plan
+│Plan        │
+└─────┬──────┘
+      │
+      ▼
+┌────────────┐
+│Request     │◄── "Apply now?"
+│Authorization
+└─────┬──────┘
+      │
+   [User says "yes"]
+      │
+      ▼
+┌────────────┐
+│Delegate to │◄── With auth metadata
+│Developer   │
+└─────┬──────┘
+      │
+      ▼
+┌────────────┐
+│Implement   │◄── TDD cycle
+│(TDD)       │
+└─────┬──────┘
+      │
+      ▼
+┌────────────┐
+│Delegate to │
+│QA          │
+└─────┬──────┘
+      │
+      ▼
+   ┌───────┐
+   │ QA    │
+   │Report │
+   └──┬────┘
+      │
+   [APPROVED]
+      │
+      ▼
+  User notified
+```
+
+## Error Handling
+
+### Blocked States
+
+| Agent | Blocked By | Resolution |
+|-------|------------|------------|
+| Orchestrator | Missing critical skill | Ask user: proceed without skill or wait? |
+| Developer | No apply authorization | Return to orchestrator for authorization |
+| Developer | Missing required skill | Return to orchestrator |
+| QA | Can't validate (missing skill/tool) | Return to orchestrator |
+| QA | Contradictory requirement | Return to orchestrator |
+
+### Escalation Path
+
+```
+Developer ──fix──► QA ──approve──► Orchestrator ──notify──► User
+     ▲              │
+     │              └──reject──► Developer (fix loop)
+     │
+     └──block──► Orchestrator ──clarify──► User
+```
+
+## Anti-Hallucination Mechanisms
+
+1. **Explicit Contracts**: Everything in writing (Agreement Contract, Skill Assignment, Gherkin)
+2. **Authorization Gates**: No implementation without explicit approval
+3. **Three-Layer Validation**: Orchestrator assumptions → Developer pre-flight → QA verification
+4. **Pre-Commit Validation**: Tests must actually pass (not claimed)
+5. **Scope Enforcement**: No deviation from approved Gherkin
+6. **Stateless Awareness**: Reports when memory unavailable (prevents false assumptions)
+
+## Best Practices
+
+### For Users
+
+- Be specific in requirements
+- Confirm or correct assumptions
+- Review Gherkin before approving
+- Say "yes" only when ready to apply
+- Don't approve new changes just because previous ones were approved
+
+### For Developers Extending Agents
+
+- Never remove authorization gates
+- Maintain XML output contracts
+- Test locally before committing
+- Update CHANGELOG
+- Consider impact on other agents
+- Document non-obvious behaviors
+
+## References
+
+- [OpenCode Agents Documentation](https://opencode.ai/docs/agents/)
+- [OpenCode Permissions](https://opencode.ai/docs/permissions/)
+- [OpenCode Skills](https://opencode.ai/docs/skills/)
+- [Gherkin Language](https://cucumber.io/docs/gherkin/)
+- [Engram Memory](https://github.com/gentleman-programming/engram)
+- [Mind Memory](https://github.com/GabrielMartinMoran/mind)

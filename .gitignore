@@ -1,0 +1,23 @@
+# Neocortex Strike Team
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OpenCode (local overrides - do not commit)
+# Agents are installed to ~/.config/opencode/agents/
+
+# Temporary
+*.tmp
+*.log
+
+# Backup
+*.bak
+*.backup
