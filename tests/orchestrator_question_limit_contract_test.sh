@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+make build TARGET=opencode >/tmp/nas-build-opencode-orchestrator.log
+
 assert_contains() {
   local file="$1"
   local pattern="$2"
@@ -11,6 +13,6 @@ assert_contains() {
 }
 
 # Scenario: Orchestrator can ask at most 3 questions per message
-assert_contains ".opencode/agents/Nova Agent Squad.md" "Ask at most 3 questions per message."
+assert_contains "dist/platforms/opencode/agents/Nova Agent Squad.md" "Ask at most 3 questions per message."
 
 echo "PASS: orchestrator question limit contract checks"

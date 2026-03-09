@@ -23,23 +23,24 @@ extract_validate_block() {
   awk '/^validate:/{flag=1; next} /^doctor:/{flag=0} flag {print}' Makefile
 }
 
-# Scenario: validate uses centralized source/artifact, not .opencode as source-of-truth
+# Scenario: validate uses centralized source/artifact paths
 validate_block="$(extract_validate_block)"
-if echo "$validate_block" | grep -Fq ".opencode/agents"; then
-  echo "FAIL: validate target still references .opencode/agents"
-  exit 1
-fi
 if ! echo "$validate_block" | grep -Fq "src/agents"; then
   echo "FAIL: validate target does not reference src/agents"
   exit 1
 fi
+if ! echo "$validate_block" | grep -Fq "dist/platforms/opencode/agents"; then
+  echo "FAIL: validate target does not reference dist/platforms/opencode/agents"
+  exit 1
+fi
 
-# Scenario: build script does not sync legacy .opencode/agents as side effect
-assert_not_contains "scripts/build.sh" ".opencode/agents"
+# Scenario: build script copies only from centralized source
+assert_contains "scripts/build.sh" 'cp -R "$source" "$out"'
 
-# Scenario: local .opencode garbage is explicitly ignored
-assert_contains ".gitignore" ".opencode/node_modules/"
-assert_contains ".gitignore" ".opencode/package.json"
-assert_contains ".gitignore" ".opencode/bun.lock"
+# Scenario: make test ensures OpenCode artifacts are built before contractual checks
+assert_contains "Makefile" '@$(MAKE) build TARGET=opencode'
+
+# Scenario: build artifacts are ignored by policy
+assert_contains ".gitignore" "dist/"
 
 echo "PASS: final cleanup contract checks"

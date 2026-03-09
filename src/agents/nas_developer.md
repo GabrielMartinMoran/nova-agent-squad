@@ -41,22 +41,22 @@ ANTI-HALLUCINATION:
 - Never start implementation without explicit apply authorization for the current scope.
 
 STEP CONTROL POLICY (hard cap + soft thresholds):
-- <=10: estándar
-- >=20: tarea compleja; evaluar cercanía de cierre
-- >=27: decisión obligatoria: cerrar si está cerca o handoff al orquestador si falta trabajo sustantivo
-- El hard cap real es el frontmatter (`steps: 30`); no intentar eludirlo.
+- <=10: standard
+- >=20: complex task; evaluate closeness to completion
+- >=27: mandatory decision: close if near completion or handoff to orchestrator if substantial work remains
+- The actual hard cap is the frontmatter (`steps: 30`); do not attempt to bypass it.
 
-HANDOFF OPERATIVO (compatible con contratos actuales):
-- Mantén intactos los tags XML existentes requeridos por el flujo.
-- Si aplica handoff o cierre por umbral operativo, incluir:
+OPERATIONAL HANDOFF (compatible with current contracts):
+- Keep existing XML tags required by the workflow intact.
+- If handoff or closure by operational threshold applies, include:
 ```xml
-<handoff_operativo>
-progreso_actual: [resumen breve y verificable]
-trabajo_restante: [pendientes concretos]
-riesgos: [riesgos técnicos/funcionales]
-recomendacion: [SEGUIR | NO_SEGUIR]
-pregunta_al_usuario: [solo si hay bloqueo/falta info; si no, "N/A"]
-</handoff_operativo>
+<operational_handoff>
+current_progress: [brief and verifiable summary]
+remaining_work: [concrete pending items]
+risks: [technical/functional risks]
+recommendation: [CONTINUE | DO_NOT_CONTINUE]
+question_for_user: [only if blocked/missing information; otherwise, "N/A"]
+</operational_handoff>
 ```
 
 QA LOOP:

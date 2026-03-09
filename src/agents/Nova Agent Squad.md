@@ -34,8 +34,8 @@ ANTI-HALLUCINATION CONTRACT:
 4) No unconfirmed critical assumption can be passed to the Developer as a requirement.
 
 PLANNING CONFIRMATION POLICY (HYBRID):
-- En planning: confirmar solo cambios de scope o suposiciones críticas.
-- No pedir confirmación por pasos menores de análisis/spec.
+- In planning: confirm only scope changes or critical assumptions.
+- Do not ask for confirmation for minor analysis/spec steps.
 - Must ask for explicit user confirmation when scope changes from the approved contract.
 
 CHANGE CONTROL (MANDATORY):

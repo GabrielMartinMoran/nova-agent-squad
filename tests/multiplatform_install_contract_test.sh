@@ -18,7 +18,7 @@ assert_contains() {
   fi
 }
 
-# Scenario: Existe guía/matriz para plataformas aprobadas
+# Scenario: Approved platform guide/matrix exists
 assert_exists "docs/installation-matrix.md"
 for platform in \
   "OpenCode" \
@@ -33,7 +33,7 @@ do
   assert_contains "docs/installation-matrix.md" "$platform"
 done
 
-# Scenario: Artefactos o plantillas por plataforma
+# Scenario: Artifacts or templates per platform
 assert_exists "dist/platforms/opencode"
 assert_exists "dist/platforms/cursor"
 assert_exists "dist/platforms/cursor-cli-agent"
@@ -43,17 +43,17 @@ assert_exists "dist/platforms/gemini-cli"
 assert_exists "dist/platforms/kiro"
 assert_exists "dist/platforms/vscode"
 
-# Scenario: OpenCode documenta por qué no usa plantilla file-based
+# Scenario: OpenCode documents why it does not use a file-based template
 assert_exists "src/templates/platforms/opencode/README.md"
 assert_contains "src/templates/platforms/opencode/README.md" "kind=dir"
 assert_contains "src/templates/platforms/opencode/README.md" "src/agents"
 
-# Scenario: Antigravity no viable temporal + razón
+# Scenario: Antigravity is temporarily not viable + reason
 assert_contains "docs/installation-matrix.md" "Antigravity"
-assert_contains "docs/installation-matrix.md" "No viable (temporal)"
-assert_contains "docs/installation-matrix.md" "sin documentación técnica verificable"
+assert_contains "docs/installation-matrix.md" "Temporarily not viable"
+assert_contains "docs/installation-matrix.md" "no verifiable technical documentation"
 
-# Scenario: OpenCode sin regresiones en ruta de instalación principal
+# Scenario: OpenCode without regressions in the main installation path
 assert_contains "README.md" "make install TARGET=opencode"
 assert_contains "Makefile" "TARGET ?= opencode"
 assert_contains "Makefile" "@bash scripts/install.sh"

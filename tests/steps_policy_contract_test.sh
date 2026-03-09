@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+make build TARGET=opencode >/tmp/nas-build-opencode-steps.log
+
 assert_contains() {
   local file="$1"
   local pattern="$2"
@@ -10,31 +12,31 @@ assert_contains() {
   fi
 }
 
-# Scenario: Ajuste de frontmatter steps para margen operativo
-assert_contains ".opencode/agents/nas_researcher.md" "steps: 30"
-assert_contains ".opencode/agents/nas_developer.md" "steps: 30"
-assert_contains ".opencode/agents/nas_qa.md" "steps: 30"
+# Scenario: Frontmatter steps adjusted for operational margin
+assert_contains "dist/platforms/opencode/agents/nas_researcher.md" "steps: 30"
+assert_contains "dist/platforms/opencode/agents/nas_developer.md" "steps: 30"
+assert_contains "dist/platforms/opencode/agents/nas_qa.md" "steps: 30"
 
 for file in \
-  ".opencode/agents/nas_researcher.md" \
-  ".opencode/agents/nas_developer.md" \
-  ".opencode/agents/nas_qa.md"
+  "dist/platforms/opencode/agents/nas_researcher.md" \
+  "dist/platforms/opencode/agents/nas_developer.md" \
+  "dist/platforms/opencode/agents/nas_qa.md"
 do
-  # Scenario: Comportamiento estándar en tramo <=10
-  assert_contains "$file" "<=10: estándar"
-  # Scenario: Evaluación de cercanía de cierre en >=20
-  assert_contains "$file" ">=20: tarea compleja; evaluar cercanía de cierre"
-  # Scenario: Decisión obligatoria en >=27
-  assert_contains "$file" ">=27: decisión obligatoria: cerrar si está cerca o handoff al orquestador si falta trabajo sustantivo"
-  # Scenario: Formato de handoff obligatorio al orquestador
-  assert_contains "$file" "progreso_actual"
-  assert_contains "$file" "trabajo_restante"
-  assert_contains "$file" "riesgos"
-  assert_contains "$file" "recomendacion: [SEGUIR | NO_SEGUIR]"
-  assert_contains "$file" "pregunta_al_usuario"
+  # Scenario: Standard behavior for <=10
+  assert_contains "$file" "<=10: standard"
+  # Scenario: Evaluate closeness to completion for >=20
+  assert_contains "$file" ">=20: complex task; evaluate closeness to completion"
+  # Scenario: Mandatory decision for >=27
+  assert_contains "$file" ">=27: mandatory decision: close if near completion or handoff to orchestrator if substantial work remains"
+  # Scenario: Mandatory handoff format to orchestrator
+  assert_contains "$file" "current_progress"
+  assert_contains "$file" "remaining_work"
+  assert_contains "$file" "risks"
+  assert_contains "$file" "recommendation: [CONTINUE | DO_NOT_CONTINUE]"
+  assert_contains "$file" "question_for_user"
 done
 
-# Scenario: Documentación alineada
+# Scenario: Documentation alignment
 assert_contains "docs/AGENTS.md" "hard cap"
 assert_contains "docs/AGENTS.md" "soft thresholds"
 assert_contains "docs/AGENTS.md" "handoff"

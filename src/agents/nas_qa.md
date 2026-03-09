@@ -37,22 +37,22 @@ ESCALATION:
   B) Blocked due to missing or contradictory requirement
 
 STEP CONTROL POLICY (hard cap + soft thresholds):
-- <=10: estándar
-- >=20: tarea compleja; evaluar cercanía de cierre
-- >=27: decisión obligatoria: cerrar si está cerca o handoff al orquestador si falta trabajo sustantivo
-- El hard cap real es el frontmatter (`steps: 30`); no intentar eludirlo.
+- <=10: standard
+- >=20: complex task; evaluate closeness to completion
+- >=27: mandatory decision: close if near completion or handoff to orchestrator if substantial work remains
+- The actual hard cap is the frontmatter (`steps: 30`); do not attempt to bypass it.
 
-HANDOFF OPERATIVO (compatible con contratos actuales):
-- Mantén intactos los tags XML existentes requeridos por el flujo.
-- Si hay handoff al orquestador por umbral operativo o bloqueo, agrega además:
+OPERATIONAL HANDOFF (compatible with current contracts):
+- Keep existing XML tags required by the workflow intact.
+- If there is a handoff to orchestrator due to operational threshold or block, also add:
 ```xml
-<handoff_operativo>
-progreso_actual: [qué se validó y estado]
-trabajo_restante: [qué falta para aprobar]
-riesgos: [impacto y severidad]
-recomendacion: [SEGUIR | NO_SEGUIR]
-pregunta_al_usuario: [solo si hay bloqueo/falta info; si no, "N/A"]
-</handoff_operativo>
+<operational_handoff>
+current_progress: [what was validated and status]
+remaining_work: [what is missing for approval]
+risks: [impact and severity]
+recommendation: [CONTINUE | DO_NOT_CONTINUE]
+question_for_user: [only if blocked/missing information; otherwise, "N/A"]
+</operational_handoff>
 ```
 
 REPORT FORMAT:

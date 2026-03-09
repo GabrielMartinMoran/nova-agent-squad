@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+make build TARGET=opencode >/tmp/nas-build-opencode-rename.log
+
 assert_exists() {
   local path="$1"
   if [ ! -e "$path" ]; then
@@ -19,16 +21,16 @@ assert_contains() {
 }
 
 # Scenario 1: Agent files are fully renamed
-assert_exists ".opencode/agents/Nova Agent Squad.md"
-assert_exists ".opencode/agents/nas_researcher.md"
-assert_exists ".opencode/agents/nas_developer.md"
-assert_exists ".opencode/agents/nas_qa.md"
+assert_exists "dist/platforms/opencode/agents/Nova Agent Squad.md"
+assert_exists "dist/platforms/opencode/agents/nas_researcher.md"
+assert_exists "dist/platforms/opencode/agents/nas_developer.md"
+assert_exists "dist/platforms/opencode/agents/nas_qa.md"
 
 # Scenario 2: Primary agent permissions and workflow references use nas_* IDs
-assert_contains ".opencode/agents/Nova Agent Squad.md" '"nas_researcher": allow'
-assert_contains ".opencode/agents/Nova Agent Squad.md" '"nas_developer": allow'
-assert_contains ".opencode/agents/Nova Agent Squad.md" '"nas_qa": allow'
-assert_contains ".opencode/agents/Nova Agent Squad.md" "invoke nas_developer"
+assert_contains "dist/platforms/opencode/agents/Nova Agent Squad.md" '"nas_researcher": allow'
+assert_contains "dist/platforms/opencode/agents/Nova Agent Squad.md" '"nas_developer": allow'
+assert_contains "dist/platforms/opencode/agents/Nova Agent Squad.md" '"nas_qa": allow'
+assert_contains "dist/platforms/opencode/agents/Nova Agent Squad.md" "invoke nas_developer"
 
 # Scenario 3: Makefile references new branding and IDs
 assert_contains "Makefile" "Nova Agent Squad - Makefile"

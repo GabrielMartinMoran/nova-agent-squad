@@ -8,7 +8,7 @@ DESTDIR ?=
 help:
 	@echo "Nova Agent Squad - Makefile"
 	@echo ""
-	@echo "Available commands:"
+	@echo "make commands:"
 	@echo "  make build TARGET=<target|all> - Build centralized artifacts to dist/"
 	@echo "  make install TARGET=<target> [DRY_RUN=1] [DESTDIR=...] - Install built target"
 	@echo "  make uninstall   - Remove agents from global OpenCode config"
@@ -18,6 +18,9 @@ help:
 	@echo "  make list-platform-templates - List distribution templates by platform"
 	@echo "  make check-deps - Check OpenCode installation"
 	@echo "  make help       - Show this help message"
+	@echo ""
+	@echo "supported platform TARGET values:"
+	@awk -F'|' '!/^#/ && NF {printf "  - %s\n", $$1}' config/platforms.manifest
 	@echo ""
 
 list-platform-templates:
@@ -88,6 +91,7 @@ doctor:
 	@bash scripts/doctor.sh
 
 test:
+	@$(MAKE) build TARGET=opencode
 	@bash tests/centralized_architecture_contract_test.sh
 	@bash tests/final_cleanup_contract_test.sh
 	@bash tests/multiplatform_install_contract_test.sh
@@ -97,3 +101,4 @@ test:
 	@bash tests/orchestrator_question_limit_contract_test.sh
 	@bash tests/native_subagents_contract_test.sh
 	@bash tests/doctor_contract_test.sh
+	@bash tests/make_help_targets_contract_test.sh

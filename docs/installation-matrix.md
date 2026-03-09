@@ -7,7 +7,7 @@ This matrix defines the currently supported installation/distribution targets fo
 - **GA**: expected to work with documented path in this repository.
 - **Beta**: template provided; requires user adaptation/validation in target runtime.
 - **Experimental**: bootstrap only; behavior depends on external tooling maturity.
-- **No viable (temporal)**: intentionally not supported yet due to missing verifiable technical docs.
+- **Temporarily not viable**: intentionally not supported yet due to missing verifiable technical docs.
 
 | Platform | Status | Installation artifact/template | Limitations |
 |---|---|---|---|
@@ -20,7 +20,7 @@ This matrix defines the currently supported installation/distribution targets fo
 | Kiro IDE | Experimental | `src/templates/platforms/kiro/AGENTS.md.tmpl` -> `dist/platforms/kiro/AGENTS.md` | Final wiring depends on IDE runtime version. |
 | Kiro CLI | Experimental | `src/templates/platforms/kiro/AGENTS.md.tmpl` -> `dist/platforms/kiro/AGENTS.md` | Subagents supported, but runtime subagent tool access can be limited versus primary runtime. |
 | VS Code | Experimental | `dist/platforms/vscode/.vscode/nas.instructions.md` | Depends on extension/toolchain used inside VS Code; no single native NAS installer. |
-| Antigravity | No viable (temporal) | N/A | **No viable (temporal): sin documentación técnica verificable** para contrato de instalación/ejecución de agentes compatible con NAS. |
+| Antigravity | Temporarily not viable | N/A | **Temporarily not viable: no verifiable technical documentation** for an NAS-compatible agent installation/execution contract. |
 
 ## Notes
 

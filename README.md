@@ -55,16 +55,16 @@ flowchart TD
 NAS subagents `nas_researcher`, `nas_developer`, and `nas_qa` use a mixed policy:
 - **hard cap**: `steps: 30` in frontmatter
 - **soft thresholds**:
-  - `<=10`: estándar
-  - `>=20`: tarea compleja; evaluar cercanía de cierre
-  - `>=27`: decisión obligatoria: cerrar si está cerca o handoff al orquestador si falta trabajo sustantivo
+  - `<=10`: standard
+  - `>=20`: complex task; evaluate closeness to completion
+  - `>=27`: mandatory decision: close if near completion or handoff to orchestrator if substantial work remains
 
 When a handoff is required, agents provide a structured **handoff** block compatible with existing XML contracts, including:
-- `progreso_actual`
-- `trabajo_restante`
-- `riesgos`
-- `recomendacion: [SEGUIR | NO_SEGUIR]`
-- `pregunta_al_usuario` (when blocked/missing info)
+- `current_progress`
+- `remaining_work`
+- `risks`
+- `recommendation: [CONTINUE | DO_NOT_CONTINUE]`
+- `question_for_user` (when blocked/missing info)
 
 ### 1. Planning-First Default
 

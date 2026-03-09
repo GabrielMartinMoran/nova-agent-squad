@@ -65,9 +65,9 @@ The orchestrator acts as Manager and Tech Lead. It is the only agent that intera
 **Operational step policy**:
 - hard cap: `steps: 30`
 - soft thresholds:
-  - `<=10`: estándar
-  - `>=20`: tarea compleja; evaluar cercanía de cierre
-  - `>=27`: decisión obligatoria: cerrar si está cerca o handoff al orquestador si falta trabajo sustantivo
+  - `<=10`: standard
+  - `>=20`: complex task; evaluate closeness to completion
+  - `>=27`: mandatory decision: close if near completion or handoff to orchestrator if substantial work remains
 
 The researcher analyzes the codebase and produces formal specifications.
 
@@ -104,9 +104,9 @@ Feature: [Name]
 **Operational step policy**:
 - hard cap: `steps: 30`
 - soft thresholds:
-  - `<=10`: estándar
-  - `>=20`: tarea compleja; evaluar cercanía de cierre
-  - `>=27`: decisión obligatoria: cerrar si está cerca o handoff al orquestador si falta trabajo sustantivo
+  - `<=10`: standard
+  - `>=20`: complex task; evaluate closeness to completion
+  - `>=27`: mandatory decision: close if near completion or handoff to orchestrator if substantial work remains
 
 The developer implements features using strict TDD methodology.
 
@@ -142,9 +142,9 @@ Action: [File changed or command executed]
 **Operational step policy**:
 - hard cap: `steps: 30`
 - soft thresholds:
-  - `<=10`: estándar
-  - `>=20`: tarea compleja; evaluar cercanía de cierre
-  - `>=27`: decisión obligatoria: cerrar si está cerca o handoff al orquestador si falta trabajo sustantivo
+  - `<=10`: standard
+  - `>=20`: complex task; evaluate closeness to completion
+  - `>=27`: mandatory decision: close if near completion or handoff to orchestrator if substantial work remains
 
 The QA agent validates implementation against specifications.
 
@@ -224,13 +224,13 @@ apply_authorization:
 To preserve compatibility, existing XML contracts stay intact and agents may append a structured handoff block when closing near limit or escalating:
 
 ```xml
-<handoff_operativo>
-progreso_actual: [...]
-trabajo_restante: [...]
-riesgos: [...]
-recomendacion: [SEGUIR | NO_SEGUIR]
-pregunta_al_usuario: [... o "N/A"]
-</handoff_operativo>
+<operational_handoff>
+current_progress: [...]
+remaining_work: [...]
+risks: [...]
+recommendation: [CONTINUE | DO_NOT_CONTINUE]
+question_for_user: [... or "N/A"]
+</operational_handoff>
 ```
 
 ## Skill System

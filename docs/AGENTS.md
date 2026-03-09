@@ -90,22 +90,22 @@ For `nas_researcher`, `nas_developer`, and `nas_qa`:
 
 - Frontmatter uses **hard cap** `steps: 30`.
 - Prompt rules include **soft thresholds**:
-  - `<=10`: estándar
-  - `>=20`: tarea compleja; evaluar cercanía de cierre
-  - `>=27`: decisión obligatoria: cerrar si está cerca o handoff al orquestador si falta trabajo sustantivo
+  - `<=10`: standard
+  - `>=20`: complex task; evaluate closeness to completion
+  - `>=27`: mandatory decision: close if near completion or handoff to orchestrator if substantial work remains
 
 ### Structured handoff (compatible contract extension)
 
 Existing XML tags must remain unchanged. If operational handoff is needed, agents append:
 
 ```xml
-<handoff_operativo>
-progreso_actual: [...]
-trabajo_restante: [...]
-riesgos: [...]
-recomendacion: [SEGUIR | NO_SEGUIR]
-pregunta_al_usuario: [... o "N/A"]
-</handoff_operativo>
+<operational_handoff>
+current_progress: [...]
+remaining_work: [...]
+risks: [...]
+recommendation: [CONTINUE | DO_NOT_CONTINUE]
+question_for_user: [... or "N/A"]
+</operational_handoff>
 ```
 
 ## Common Update Patterns
