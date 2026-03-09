@@ -1,10 +1,10 @@
 # Nova Agent Squad
 
-A production-ready multi-agent system for OpenCode that eliminates hallucinations through strict role separation, explicit authorization gates, and formal specification workflows.
+A production-ready, multi-platform multi-agent system that reduces hallucinations through strict role separation, explicit authorization gates, and a contract-driven, SDD-inspired workflow.
 
 ## Overview
 
-Nova Agent Squad (NAS) is a four-agent architecture designed for reliable, auditable software development. It enforces planning-first behavior, requires explicit user authorization before any code modification, and validates implementation against formally specified Gherkin scenarios.
+Nova Agent Squad (NAS) is a four-agent architecture for reliable, auditable software delivery. It enforces planning-first behavior, requires explicit user authorization before any file modification, and validates implementation against approved contracts and tagged Gherkin scenarios.
 
 ## Why Nova Agent Squad?
 
@@ -18,33 +18,35 @@ AI coding assistants are powerful but prone to hallucinations, scope drift, and 
 
 ## Architecture
 
+```mermaid
+flowchart TD
+    U[User] --> O[Orchestrator\nNova Agent Squad]
+
+    O -->|Scope + constraints| R[nas_researcher]
+    O -->|Approved apply contract + required skills| D[nas_developer]
+    O -->|Verification request + acceptance contract| Q[nas_qa]
+
+    R -->|Feasibility analysis + tagged Gherkin| O
+    D -->|TDD implementation report + checks| O
+    Q -->|Contract/Gherkin/quality-gates verdict| O
+
+    O -->|Clarifications, decisions, approvals| U
 ```
-┌─────────────────────────────────────────────────────────┐
-│                   Nova Agent Squad                 │
-│  ┌─────────────────────────────────────────────────┐   │
-│  │          ORCHESTRATOR (Primary Agent)           │   │
-│  │  - Manager + Tech Lead                         │   │
-│  │  - Plans, delegates, validates assumptions     │   │
-│  │  - NEVER writes code                           │   │
-│  └───────────────┬─────────────────────────────────┘   │
-│                  │                                         
-│    ┌─────────────┼─────────────┐                           
-│    ▼             ▼             ▼                           
-│ ┌────────┐  ┌──────────┐  ┌─────────┐                     
-│ │RESEARCH│  │DEVELOPER │  │   QA    │                     
-│ │  ER   │  │          │  │         │                     
-│ └────────┘  └──────────┘  └─────────┘                     
-└─────────────────────────────────────────────────────────┘
-```
+
+### Coordination policy
+
+- Subagents are coordinated by the orchestrator.
+- Scope/contract decisions and conflicts are escalated back to the orchestrator.
+- The architecture does **not** assume guaranteed direct subagent-to-subagent interaction; orchestrator mediation is the default coordination path.
 
 ### Agents
 
 | Agent | Mode | Role |
 |-------|------|------|
-| `Nova Agent Squad` | primary | Orchestrator - coordinates, challenges requests, delegates |
-| `nas_researcher` | subagent | Maps codebase, checks feasibility, outputs Gherkin |
-| `nas_developer` | subagent | TDD implementation from approved contract only |
-| `nas_qa` | subagent | Validates against contract, Gherkin, and quality gates |
+| `Nova Agent Squad` | primary | Orchestrator: discovers installed skills, assigns required skills to subagents, coordinates workflow, escalates decisions, never performs implementation edits |
+| `nas_researcher` | subagent | Research: evaluates feasibility, maps impacted areas, and produces tagged Gherkin scenarios/acceptance contracts |
+| `nas_developer` | subagent | Developer: executes TDD (Red→Green→Refactor) and implements only within explicitly approved apply contract scope |
+| `nas_qa` | subagent | QA: verifies implementation against approved contract + tagged Gherkin + quality gates (tests/lint/checks) |
 
 ## Features
 
@@ -101,7 +103,7 @@ Feature: User Authentication
 The orchestrator automatically:
 1. Discovers installed skills (project-level + global)
 2. Builds a Skill Assignment Contract
-3. Passes required skills to each subagent
+3. Assigns and passes required skills to each subagent
 4. Blocks implementation if critical skills are missing
 
 ### 5. Memory Integration
@@ -114,17 +116,17 @@ NAS supports persistent memory for decision tracking:
 
 ### Prerequisites
 
-- [OpenCode](https://opencode.ai) installed
 - Git configured
+- One supported runtime from the platform matrix (OpenCode recommended)
 
 ### Installation
 
 ```bash
 # Clone this repository
-git clone git@github.com:GabrielMartinMoran/neocortex-strike-team.git
+git clone git@github.com:GabrielMartinMoran/nova-agent-squad.git
 
 # Install agents to your global OpenCode config (canonical target)
-cd neocortex-strike-team
+cd nova-agent-squad
 make install TARGET=opencode
 ```
 
@@ -194,15 +196,16 @@ opencode --list-agents
 
 ### Configuration
 
-The default agent is already set to `Nova Agent Squad` in the included configuration. OpenCode will automatically use it as your primary agent.
+The default agent can be set to `Nova Agent Squad` in your selected runtime configuration.
+OpenCode remains the primary GA example, but the same orchestration flow applies to other supported platforms in the installation matrix.
 
-To switch back to the default OpenCode agent:
+To switch back to your platform default agent:
 
-Edit `~/.config/opencode/opencode.json` and remove or change the `default_agent` field.
+For OpenCode, edit `~/.config/opencode/opencode.json` and remove or change the `default_agent` field.
 
 ## Usage
 
-When you start OpenCode, you'll be working with the Nova Agent Squad orchestrator. Just describe what you want to build:
+When you start NAS on your selected platform runtime, you'll be working with the Nova Agent Squad orchestrator. Just describe what you want to build:
 
 1. **Describe your feature** - The orchestrator will analyze and ask clarifying questions
 2. **Review the plan** - Researcher will produce Gherkin specs
@@ -238,7 +241,7 @@ You: Yes
 ## Project Structure
 
 ```
-neocortex-strike-team/
+nova-agent-squad/
 ├── src/
 │   ├── agents/                        # Canonical NAS source-of-truth
 │   └── templates/
@@ -281,4 +284,4 @@ Contributions are welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) for gu
 
 ---
 
-Built with OpenCode Agents. Eliminate hallucinations. Ship with confidence.
+Built with a contract-driven, SDD-inspired multi-agent workflow. Eliminate hallucinations. Ship with confidence.
