@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to Neocortex Strike Team will be documented in this file.
+All notable changes to Nova Agent Squad will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Initial release of Neocortex Strike Team
+- Initial release of Nova Agent Squad
 - Four-agent architecture: Orchestrator, Researcher, Developer, QA
 - Planning-first workflow with explicit authorization gates
 - Tagged Gherkin specification support
@@ -24,10 +24,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 | Agent | Description |
 |-------|-------------|
-| `Neocortex Strike Team` | Primary orchestrator (manager + tech lead) |
-| `nst_researcher` | Technical researcher with Gherkin output |
-| `nst_developer` | TDD-focused implementation agent |
-| `nst_qa` | Strict QA validator with English status reports |
+| `Nova Agent Squad` | Primary orchestrator (manager + tech lead) |
+| `nas_researcher` | Technical researcher with Gherkin output |
+| `nas_developer` | TDD-focused implementation agent |
+| `nas_qa` | Strict QA validator with English status reports |
 
 ### Features
 

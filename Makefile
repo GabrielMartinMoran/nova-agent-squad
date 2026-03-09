@@ -2,7 +2,7 @@
 
 # Default target
 help:
-	@echo "Neocortex Strike Team - Makefile"
+	@echo "Nova Agent Squad - Makefile"
 	@echo ""
 	@echo "Available commands:"
 	@echo "  make install     - Install agents to global OpenCode config"
@@ -17,20 +17,20 @@ check-deps:
 	@which opencode > /dev/null 2>&1 && echo "✓ OpenCode is installed" || (echo "✗ OpenCode not found" && exit 1)
 
 install: check-deps
-	@echo "Installing Neocortex Strike Team agents..."
+	@echo "Installing Nova Agent Squad agents..."
 	@mkdir -p ~/.config/opencode/agents
 	@cp -f .opencode/agents/* ~/.config/opencode/agents/
 	@echo "✓ Agents installed to ~/.config/opencode/agents/"
 	@echo ""
 	@echo "To verify, restart OpenCode and check agent list."
-	@echo "The default agent should be 'Neocortex Strike Team'."
+	@echo "The default agent should be 'Nova Agent Squad'."
 
 uninstall:
-	@echo "Uninstalling Neocortex Strike Team agents..."
-	@rm -f ~/.config/opencode/agents/"Neocortex Strike Team.md"
-	@rm -f ~/.config/opencode/agents/nst_researcher.md
-	@rm -f ~/.config/opencode/agents/nst_developer.md
-	@rm -f ~/.config/opencode/agents/nst_qa.md
+	@echo "Uninstalling Nova Agent Squad agents..."
+	@rm -f ~/.config/opencode/agents/"Nova Agent Squad.md"
+	@rm -f ~/.config/opencode/agents/nas_researcher.md
+	@rm -f ~/.config/opencode/agents/nas_developer.md
+	@rm -f ~/.config/opencode/agents/nas_qa.md
 	@echo "✓ Agents removed from ~/.config/opencode/agents/"
 	@echo ""
 	@echo "Note: This removes only the agent files."
@@ -39,7 +39,7 @@ uninstall:
 validate: check-deps
 	@echo "Validating agent structure..."
 	@# Check all required agent files exist
-	@for agent in "Neocortex Strike Team" nst_researcher nst_developer nst_qa; do \
+	@for agent in "Nova Agent Squad" nas_researcher nas_developer nas_qa; do \
 		if [ -f ".opencode/agents/$$agent.md" ]; then \
 			echo "✓ $$agent.md"; \
 		else \

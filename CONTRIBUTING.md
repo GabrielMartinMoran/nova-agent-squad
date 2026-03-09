@@ -1,6 +1,6 @@
-# Contributing to Neocortex Strike Team
+# Contributing to Nova Agent Squad
 
-Thank you for your interest in contributing to Neocortex Strike Team!
+Thank you for your interest in contributing to Nova Agent Squad!
 
 ## Code of Conduct
 
@@ -21,7 +21,7 @@ Be respectful, collaborative, and focused on reducing hallucinations in AI-assis
 
 1. Open a discussion first to gauge interest
 2. Provide a clear use case
-3. Explain how it aligns with NST's anti-hallucination goals
+3. Explain how it aligns with NAS's anti-hallucination goals
 
 ### Pull Requests
 

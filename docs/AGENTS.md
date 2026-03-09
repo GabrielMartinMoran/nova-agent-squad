@@ -1,10 +1,10 @@
 # Agent Versioning and Maintenance Guide
 
-This document describes how to version, maintain, and update the Neocortex Strike Team agents.
+This document describes how to version, maintain, and update the Nova Agent Squad agents.
 
 ## Versioning Scheme
 
-Neocortex Strike Team follows **Semantic Versioning** (SemVer):
+Nova Agent Squad follows **Semantic Versioning** (SemVer):
 
 - **MAJOR**: Breaking changes to agent behavior, permission changes, or removal of features
 - **MINOR**: New features, additional rules, or backward-compatible behavior changes
@@ -84,7 +84,40 @@ permission:
 | `permission` | No | Tool-specific permissions |
 | `default_agent` | No | For primary agents, sets default |
 
+## Operational Policy: hard cap + soft thresholds + handoff
+
+For `nas_researcher`, `nas_developer`, and `nas_qa`:
+
+- Frontmatter uses **hard cap** `steps: 30`.
+- Prompt rules include **soft thresholds**:
+  - `<=10`: estándar
+  - `>=20`: tarea compleja; evaluar cercanía de cierre
+  - `>=27`: decisión obligatoria: cerrar si está cerca o handoff al orquestador si falta trabajo sustantivo
+
+### Structured handoff (compatible contract extension)
+
+Existing XML tags must remain unchanged. If operational handoff is needed, agents append:
+
+```xml
+<handoff_operativo>
+progreso_actual: [...]
+trabajo_restante: [...]
+riesgos: [...]
+recomendacion: [SEGUIR | NO_SEGUIR]
+pregunta_al_usuario: [... o "N/A"]
+</handoff_operativo>
+```
+
 ## Common Update Patterns
+
+## Planning Confirmation Policy (Hybrid)
+
+When updating the orchestrator prompt, keep this behavior aligned with docs and tests:
+
+- In planning, confirm only scope changes or critical assumptions.
+- Do not ask confirmation for minor analysis/spec steps.
+- Keep the apply gate question exact: "Implementation plan is ready. Do you want me to apply it now?"
+- Keep single-use authorization per scope and never auto-approve new scopes.
 
 ### Adding a New Rule
 

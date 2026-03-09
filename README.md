@@ -1,14 +1,14 @@
-# Neocortex Strike Team
+# Nova Agent Squad
 
 A production-ready multi-agent system for OpenCode that eliminates hallucinations through strict role separation, explicit authorization gates, and formal specification workflows.
 
 ## Overview
 
-Neocortex Strike Team (NST) is a four-agent architecture designed for reliable, auditable software development. It enforces planning-first behavior, requires explicit user authorization before any code modification, and validates implementation against formally specified Gherkin scenarios.
+Nova Agent Squad (NAS) is a four-agent architecture designed for reliable, auditable software development. It enforces planning-first behavior, requires explicit user authorization before any code modification, and validates implementation against formally specified Gherkin scenarios.
 
-## Why Neocortex Strike Team?
+## Why Nova Agent Squad?
 
-AI coding assistants are powerful but prone to hallucinations, scope drift, and unauthorized modifications. NST addresses these issues through:
+AI coding assistants are powerful but prone to hallucinations, scope drift, and unauthorized modifications. NAS addresses these issues through:
 
 - **Zero Unauthorized Changes**: Default to planning mode; implementation only after explicit user approval
 - **Role Separation**: Orchestrator (manager), Researcher (analyst), Developer (implementer), QA (validator)
@@ -20,7 +20,7 @@ AI coding assistants are powerful but prone to hallucinations, scope drift, and 
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│                   Neocortex Strike Team                 │
+│                   Nova Agent Squad                 │
 │  ┌─────────────────────────────────────────────────┐   │
 │  │          ORCHESTRATOR (Primary Agent)           │   │
 │  │  - Manager + Tech Lead                         │   │
@@ -41,12 +41,28 @@ AI coding assistants are powerful but prone to hallucinations, scope drift, and 
 
 | Agent | Mode | Role |
 |-------|------|------|
-| `Neocortex Strike Team` | primary | Orchestrator - coordinates, challenges requests, delegates |
-| `nst_researcher` | subagent | Maps codebase, checks feasibility, outputs Gherkin |
-| `nst_developer` | subagent | TDD implementation from approved contract only |
-| `nst_qa` | subagent | Validates against contract, Gherkin, and quality gates |
+| `Nova Agent Squad` | primary | Orchestrator - coordinates, challenges requests, delegates |
+| `nas_researcher` | subagent | Maps codebase, checks feasibility, outputs Gherkin |
+| `nas_developer` | subagent | TDD implementation from approved contract only |
+| `nas_qa` | subagent | Validates against contract, Gherkin, and quality gates |
 
 ## Features
+
+### Operational Step Control (hard cap + soft thresholds)
+
+NAS subagents `nas_researcher`, `nas_developer`, and `nas_qa` use a mixed policy:
+- **hard cap**: `steps: 30` in frontmatter
+- **soft thresholds**:
+  - `<=10`: estándar
+  - `>=20`: tarea compleja; evaluar cercanía de cierre
+  - `>=27`: decisión obligatoria: cerrar si está cerca o handoff al orquestador si falta trabajo sustantivo
+
+When a handoff is required, agents provide a structured **handoff** block compatible with existing XML contracts, including:
+- `progreso_actual`
+- `trabajo_restante`
+- `riesgos`
+- `recomendacion: [SEGUIR | NO_SEGUIR]`
+- `pregunta_al_usuario` (when blocked/missing info)
 
 ### 1. Planning-First Default
 
@@ -57,6 +73,8 @@ Every feature request starts in planning mode. The orchestrator will:
 4. Present findings for approval
 5. **Ask**: "Implementation plan is ready. Do you want me to apply it now?"
 6. Only after explicit "yes" will it delegate to developer
+
+Planning uses a hybrid confirmation policy: confirm only scope changes or critical assumptions, and do not request confirmation for minor analysis/spec steps.
 
 ### 2. Authorization Gates
 
@@ -88,7 +106,7 @@ The orchestrator automatically:
 
 ### 5. Memory Integration
 
-NST supports persistent memory for decision tracking:
+NAS supports persistent memory for decision tracking:
 - **Mind** (MCP): https://github.com/GabrielMartinMoran/mind
 - **Stateless**: Reports when no memory backend is available
 
@@ -124,7 +142,7 @@ opencode --list-agents
 
 ### Configuration
 
-The default agent is already set to `Neocortex Strike Team` in the included configuration. OpenCode will automatically use it as your primary agent.
+The default agent is already set to `Nova Agent Squad` in the included configuration. OpenCode will automatically use it as your primary agent.
 
 To switch back to the default OpenCode agent:
 
@@ -132,7 +150,7 @@ Edit `~/.config/opencode/opencode.json` and remove or change the `default_agent`
 
 ## Usage
 
-When you start OpenCode, you'll be working with the Neocortex Strike Team orchestrator. Just describe what you want to build:
+When you start OpenCode, you'll be working with the Nova Agent Squad orchestrator. Just describe what you want to build:
 
 1. **Describe your feature** - The orchestrator will analyze and ask clarifying questions
 2. **Review the plan** - Researcher will produce Gherkin specs
@@ -171,10 +189,10 @@ You: Yes
 neocortex-strike-team/
 ├── .opencode/
 │   └── agents/
-│       ├── Neocortex Strike Team.md   # Primary orchestrator
-│       ├── nst_researcher.md          # Research/spec agent
-│       ├── nst_developer.md            # Implementation agent
-│       └── nst_qa.md                  # Validation agent
+│       ├── Nova Agent Squad.md   # Primary orchestrator
+│       ├── nas_researcher.md          # Research/spec agent
+│       ├── nas_developer.md            # Implementation agent
+│       └── nas_qa.md                  # Validation agent
 ├── docs/
 │   ├── architecture.md                # Detailed architecture docs
 │   └── AGENTS.md                      # Agent versioning guide
@@ -192,7 +210,7 @@ neocortex-strike-team/
 
 ## Credits
 
-Neocortex Strike Team uses [Mind](https://github.com/GabrielMartinMoran/mind) for persistent memory integration. Mind is a powerful memory system for developers and AI agents, providing structured storage, full-text search, and MCP integration.
+Nova Agent Squad uses [Mind](https://github.com/GabrielMartinMoran/mind) for persistent memory integration. Mind is a powerful memory system for developers and AI agents, providing structured storage, full-text search, and MCP integration.
 
 ## License
 

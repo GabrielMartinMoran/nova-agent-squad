@@ -1,10 +1,10 @@
-# Neocortex Strike Team Architecture
+# Nova Agent Squad Architecture
 
-This document provides a detailed technical overview of the Neocortex Strike Team architecture, including agent roles, communication protocols, permissions, and the anti-hallucination system.
+This document provides a detailed technical overview of the Nova Agent Squad architecture, including agent roles, communication protocols, permissions, and the anti-hallucination system.
 
 ## System Overview
 
-Neocortex Strike Team (NST) is a four-agent system built on OpenCode's agent framework. Each agent has a specific role, strict permissions, and communicates through structured XML contracts.
+Nova Agent Squad (NAS) is a four-agent system built on OpenCode's agent framework. Each agent has a specific role, strict permissions, and communicates through structured XML contracts.
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -12,7 +12,7 @@ Neocortex Strike Team (NST) is a four-agent system built on OpenCode's agent fra
 │                          │                                      │
 │                          ▼                                      │
 │  ┌─────────────────────────────────────────────────────────┐   │
-│  │          Neocortex Strike Team (Orchestrator)           │   │
+│  │          Nova Agent Squad (Orchestrator)           │   │
 │  │  ┌─────────────────────────────────────────────────────┐│   │
 │  │  │ • Plans and coordinates                             ││   │
 │  │  │ • Challenges weak requests                          ││   │
@@ -25,7 +25,7 @@ Neocortex Strike Team (NST) is a four-agent system built on OpenCode's agent fra
 │         ┌──────────────────┼──────────────────┐                   │
 │         ▼                  ▼                  ▼                   │
 │  ┌─────────────┐   ┌─────────────┐   ┌─────────────┐             │
-│  │    nst_      │   │   nst_      │   │    nst_     │             │
+│  │    nas_      │   │   nas_      │   │    nas_     │             │
 │  │  researcher  │   │  developer  │   │     qa      │             │
 │  └─────────────┘   └─────────────┘   └─────────────┘             │
 └─────────────────────────────────────────────────────────────────┘
@@ -33,7 +33,7 @@ Neocortex Strike Team (NST) is a four-agent system built on OpenCode's agent fra
 
 ## Agent Roles
 
-### 1. Neocortex Strike Team (Orchestrator)
+### 1. Nova Agent Squad (Orchestrator)
 
 **Mode**: Primary  
 **Permissions**: No edit, no bash, task delegation only
@@ -53,13 +53,21 @@ The orchestrator acts as Manager and Tech Lead. It is the only agent that intera
 **Key Rules**:
 - Never write code
 - Never edit files
-- Always confirm assumptions before proceeding
+- In planning, confirm only scope changes or critical assumptions
+- Do not request confirmation for minor analysis/spec steps
 - Request explicit apply authorization before delegation
 
-### 2. nst_researcher
+### 2. nas_researcher
 
 **Mode**: Subagent (hidden)  
 **Permissions**: Read, search, webfetch; no edit, no bash
+
+**Operational step policy**:
+- hard cap: `steps: 30`
+- soft thresholds:
+  - `<=10`: estándar
+  - `>=20`: tarea compleja; evaluar cercanía de cierre
+  - `>=27`: decisión obligatoria: cerrar si está cerca o handoff al orquestador si falta trabajo sustantivo
 
 The researcher analyzes the codebase and produces formal specifications.
 
@@ -88,10 +96,17 @@ Feature: [Name]
 </gherkin>
 ```
 
-### 3. nst_developer
+### 3. nas_developer
 
 **Mode**: Subagent (hidden)  
 **Permissions**: Full edit, bash, webfetch
+
+**Operational step policy**:
+- hard cap: `steps: 30`
+- soft thresholds:
+  - `<=10`: estándar
+  - `>=20`: tarea compleja; evaluar cercanía de cierre
+  - `>=27`: decisión obligatoria: cerrar si está cerca o handoff al orquestador si falta trabajo sustantivo
 
 The developer implements features using strict TDD methodology.
 
@@ -119,10 +134,17 @@ Action: [File changed or command executed]
 </tdd_cycle>
 ```
 
-### 4. nst_qa
+### 4. nas_qa
 
 **Mode**: Subagent (hidden)  
 **Permissions**: Read, bash; no edit
+
+**Operational step policy**:
+- hard cap: `steps: 30`
+- soft thresholds:
+  - `<=10`: estándar
+  - `>=20`: tarea compleja; evaluar cercanía de cierre
+  - `>=27`: decisión obligatoria: cerrar si está cerca o handoff al orquestador si falta trabajo sustantivo
 
 The QA agent validates implementation against specifications.
 
@@ -161,7 +183,7 @@ Status: [APPROVED|REJECTED|BLOCKED]
 Layer 1: Orchestrator Gate
     │
     ▼
-"Implementation plan ready. Apply now?"
+"Implementation plan is ready. Do you want me to apply it now?"
     │
     ▼
 Layer 2: Developer Pre-Flight
@@ -196,6 +218,20 @@ apply_authorization:
 - After one feature is applied, new features require new authorization
 - Prior approvals do NOT auto-apply to subsequent changes
 - Each change scope is explicitly named in the authorization
+
+## Structured handoff extension (compatible)
+
+To preserve compatibility, existing XML contracts stay intact and agents may append a structured handoff block when closing near limit or escalating:
+
+```xml
+<handoff_operativo>
+progreso_actual: [...]
+trabajo_restante: [...]
+riesgos: [...]
+recomendacion: [SEGUIR | NO_SEGUIR]
+pregunta_al_usuario: [... o "N/A"]
+</handoff_operativo>
+```
 
 ## Skill System
 
@@ -270,9 +306,9 @@ In `mind_or_stateless` mode:
 permission:
   task:
     "*": deny
-    "nst_researcher": allow
-    "nst_developer": allow
-    "nst_qa": allow
+    "nas_researcher": allow
+    "nas_developer": allow
+    "nas_qa": allow
 ```
 
 ## Workflow Diagram
