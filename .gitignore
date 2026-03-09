@@ -13,10 +13,19 @@ Thumbs.db
 
 # OpenCode (local overrides - do not commit)
 # Agents are installed to ~/.config/opencode/agents/
+.opencode/node_modules/
+.opencode/package.json
+.opencode/bun.lock
+.opencode/package-lock.json
+.opencode/yarn.lock
+.opencode/pnpm-lock.yaml
 
 # Temporary
 *.tmp
 *.log
+
+# Build artifacts
+dist/
 
 # Backup
 *.bak

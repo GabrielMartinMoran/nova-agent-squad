@@ -123,9 +123,60 @@ NAS supports persistent memory for decision tracking:
 # Clone this repository
 git clone git@github.com:GabrielMartinMoran/neocortex-strike-team.git
 
-# Install agents to your global OpenCode config
+# Install agents to your global OpenCode config (canonical target)
 cd neocortex-strike-team
-make install
+make install TARGET=opencode
+```
+
+### Centralized source/build/install
+
+NAS now uses a **single source-of-truth** and generates platform artifacts from it:
+
+- Canonical source: `src/agents/`
+- Platform templates: `src/templates/platforms/`
+- Target map + destinations: `config/platforms.manifest`
+- Generated outputs: `dist/platforms/<target>/...`
+
+Build all targets:
+
+```bash
+make build TARGET=all
+```
+
+Install one target (build + install):
+
+```bash
+# Canonical OpenCode install path (~/.config/opencode/agents)
+make install TARGET=opencode
+
+# Safe dry-run with custom destination root
+make install TARGET=cursor DRY_RUN=1 DESTDIR=/tmp/nas-install
+```
+
+### Multi-platform installation (generated templates)
+
+NAS keeps **OpenCode** as the primary GA runtime and ships distribution templates for other approved targets:
+
+- OpenCode
+- Cursor
+- Cursor CLI Agent
+- Claude Code
+- Codex
+- Gemini CLI
+- Kiro
+- VS Code
+
+See the full matrix (status, limitations, and template paths) in [docs/installation-matrix.md](docs/installation-matrix.md).
+
+Legacy per-platform source artifacts were removed to avoid double source. Use generated outputs in `dist/platforms/`.
+
+- Gemini CLI remains **Experimental** and requires `experimental.enableAgents=true`.
+- Kiro CLI supports subagents with runtime subagent tool limitations.
+
+You can list available distribution templates with:
+
+```bash
+make list-platform-templates
 ```
 
 ### Manual Installation
@@ -133,8 +184,9 @@ make install
 If you prefer to install manually:
 
 ```bash
-# Copy agents to your global OpenCode agents directory
-cp -r .opencode/agents/* ~/.config/opencode/agents/
+# Build and copy generated OpenCode artifacts manually
+make build TARGET=opencode
+cp -r dist/platforms/opencode/agents/* ~/.config/opencode/agents/
 
 # Verify agents are detected
 opencode --list-agents
@@ -187,12 +239,19 @@ You: Yes
 
 ```
 neocortex-strike-team/
+├── src/
+│   ├── agents/                        # Canonical NAS source-of-truth
+│   └── templates/
+│       └── platforms/                 # Per-target templates
+├── config/
+│   └── platforms.manifest             # Target kind/source/dist/install mapping
+├── scripts/
+│   ├── build.sh                       # dist artifact generation by target
+│   └── install.sh                     # target install with dry-run support
+├── dist/
+│   └── platforms/                     # Generated artifacts (not primary source)
 ├── .opencode/
-│   └── agents/
-│       ├── Nova Agent Squad.md   # Primary orchestrator
-│       ├── nas_researcher.md          # Research/spec agent
-│       ├── nas_developer.md            # Implementation agent
-│       └── nas_qa.md                  # Validation agent
+│   └── agents/                        # Synced OpenCode runtime copy
 ├── docs/
 │   ├── architecture.md                # Detailed architecture docs
 │   └── AGENTS.md                      # Agent versioning guide
