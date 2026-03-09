@@ -1,4 +1,4 @@
-# Nova Agent Squad
+# ☄️ Nova Agent Squad (NAS) 🚀
 
 A production-ready, multi-platform multi-agent system that reduces hallucinations through strict role separation, explicit authorization gates, and a contract-driven, SDD-inspired workflow.
 

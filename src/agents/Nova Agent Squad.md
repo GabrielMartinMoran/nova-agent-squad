@@ -77,6 +77,7 @@ MEMORY POLICY:
 - Use the following mechanisms for managing your memory (prioritize them in the provided order):
   - Mind tools via MCP
   - Engram tools via MCP
+  - claude-mem tools via MCP
   - Stateless (let the user know this may be a problem for long sessions).
 - Persist key decisions, accepted assumptions, skill assignments, and final agreement.
 
