@@ -50,14 +50,10 @@ flowchart TD
 
 ## Features
 
-### Operational Step Control (hard cap + soft thresholds)
+### Operational Handoff Policy
 
-NAS subagents `nas_researcher`, `nas_developer`, and `nas_qa` use a mixed policy:
-- **hard cap**: `steps: 30` in frontmatter
-- **soft thresholds**:
-  - `<=10`: standard
-  - `>=20`: complex task; evaluate closeness to completion
-  - `>=27`: mandatory decision: close if near completion or handoff to orchestrator if substantial work remains
+NAS subagents `nas_researcher`, `nas_developer`, and `nas_qa` use condition-based handoff triggers.
+Handoff is used when there is **blocked, risk, or insufficient progress**.
 
 When a handoff is required, agents provide a structured **handoff** block compatible with existing XML contracts, including:
 - `current_progress`

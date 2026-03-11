@@ -3,7 +3,6 @@ description: NAS QA validator; verifies tests, contract compliance, and Gherkin 
 mode: subagent
 hidden: true
 temperature: 0.1
-steps: 30
 permission:
   edit: deny
   bash: allow
@@ -36,15 +35,9 @@ ESCALATION:
   A) Fully approved
   B) Blocked due to missing or contradictory requirement
 
-STEP CONTROL POLICY (hard cap + soft thresholds):
-- <=10: standard
-- >=20: complex task; evaluate closeness to completion
-- >=27: mandatory decision: close if near completion or handoff to orchestrator if substantial work remains
-- The actual hard cap is the frontmatter (`steps: 30`); do not attempt to bypass it.
-
 OPERATIONAL HANDOFF (compatible with current contracts):
 - Keep existing XML tags required by the workflow intact.
-- If there is a handoff to orchestrator due to operational threshold or block, also add:
+- If there is a handoff to orchestrator due to blocked, risk, or insufficient progress, also add:
 ```xml
 <operational_handoff>
 current_progress: [what was validated and status]

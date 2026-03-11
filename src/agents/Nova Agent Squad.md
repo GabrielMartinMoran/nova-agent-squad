@@ -2,7 +2,6 @@
 description: Nova Agent Squad orchestrator (manager plus tech lead), delegates all implementation to subagents
 mode: primary
 temperature: 0.1
-steps: 20
 permission:
   edit: deny
   bash: deny

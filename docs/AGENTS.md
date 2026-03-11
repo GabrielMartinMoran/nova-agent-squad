@@ -59,7 +59,6 @@ Each agent is a Markdown file with YAML frontmatter:
 description: Agent description
 mode: primary|subagent
 temperature: 0.1
-steps: 20
 permission:
   edit: deny|allow
   bash: deny|allow
@@ -80,19 +79,14 @@ permission:
 | `mode` | Yes | `primary` or `subagent` |
 | `hidden` | No | Hide from `@` autocomplete (subagents only) |
 | `temperature` | No | Model temperature (default varies by model) |
-| `steps` | No | Max agent iterations before forcing response |
 | `permission` | No | Tool-specific permissions |
 | `default_agent` | No | For primary agents, sets default |
 
-## Operational Policy: hard cap + soft thresholds + handoff
+## Operational Policy: condition-based handoff
 
 For `nas_researcher`, `nas_developer`, and `nas_qa`:
 
-- Frontmatter uses **hard cap** `steps: 30`.
-- Prompt rules include **soft thresholds**:
-  - `<=10`: standard
-  - `>=20`: complex task; evaluate closeness to completion
-  - `>=27`: mandatory decision: close if near completion or handoff to orchestrator if substantial work remains
+- Handoff triggers are condition-based: **blocked, risk, or insufficient progress**.
 
 ### Structured handoff (compatible contract extension)
 

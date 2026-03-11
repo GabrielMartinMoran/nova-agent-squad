@@ -62,12 +62,8 @@ The orchestrator acts as Manager and Tech Lead. It is the only agent that intera
 **Mode**: Subagent (hidden)  
 **Permissions**: Read, search, webfetch; no edit, no bash
 
-**Operational step policy**:
-- hard cap: `steps: 30`
-- soft thresholds:
-  - `<=10`: standard
-  - `>=20`: complex task; evaluate closeness to completion
-  - `>=27`: mandatory decision: close if near completion or handoff to orchestrator if substantial work remains
+**Operational handoff policy**:
+- Handoff is condition-based: **blocked, risk, or insufficient progress**.
 
 The researcher analyzes the codebase and produces formal specifications.
 
@@ -101,12 +97,8 @@ Feature: [Name]
 **Mode**: Subagent (hidden)  
 **Permissions**: Full edit, bash, webfetch
 
-**Operational step policy**:
-- hard cap: `steps: 30`
-- soft thresholds:
-  - `<=10`: standard
-  - `>=20`: complex task; evaluate closeness to completion
-  - `>=27`: mandatory decision: close if near completion or handoff to orchestrator if substantial work remains
+**Operational handoff policy**:
+- Handoff is condition-based: **blocked, risk, or insufficient progress**.
 
 The developer implements features using strict TDD methodology.
 
@@ -139,12 +131,8 @@ Action: [File changed or command executed]
 **Mode**: Subagent (hidden)  
 **Permissions**: Read, bash; no edit
 
-**Operational step policy**:
-- hard cap: `steps: 30`
-- soft thresholds:
-  - `<=10`: standard
-  - `>=20`: complex task; evaluate closeness to completion
-  - `>=27`: mandatory decision: close if near completion or handoff to orchestrator if substantial work remains
+**Operational handoff policy**:
+- Handoff is condition-based: **blocked, risk, or insufficient progress**.
 
 The QA agent validates implementation against specifications.
 
@@ -221,7 +209,7 @@ apply_authorization:
 
 ## Structured handoff extension (compatible)
 
-To preserve compatibility, existing XML contracts stay intact and agents may append a structured handoff block when closing near limit or escalating:
+To preserve compatibility, existing XML contracts stay intact and agents may append a structured handoff block when blocked, risk, or insufficient progress is present:
 
 ```xml
 <operational_handoff>
