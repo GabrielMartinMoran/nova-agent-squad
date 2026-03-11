@@ -100,5 +100,6 @@ test:
 	@bash tests/steps_policy_contract_test.sh
 	@bash tests/orchestrator_question_limit_contract_test.sh
 	@bash tests/native_subagents_contract_test.sh
+	@bash tests/memory_policy_contract_test.sh
 	@bash tests/doctor_contract_test.sh
 	@bash tests/make_help_targets_contract_test.sh

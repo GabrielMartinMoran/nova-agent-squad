@@ -106,7 +106,12 @@ The orchestrator automatically:
 
 NAS supports persistent memory for decision tracking:
 - **Mind** (MCP): https://github.com/GabrielMartinMoran/mind
-- **Stateless**: Reports when no memory backend is available
+- **OpenSpec** (MCP)
+- **Engram** (MCP)
+- **claude-mem** (MCP)
+- **Stateless** only when no memory backend is available
+
+If any memory backend is configured/available, agents MUST use it and MUST NOT fall back to stateless.
 
 ## Quick Start
 

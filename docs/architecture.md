@@ -257,17 +257,24 @@ skill_assignment:
 ### Backend Priority
 
 1. **Mind**: Primary memory backend via MCP
-2. **Stateless**: Report when no backend available
+2. **OpenSpec**: Secondary memory backend via MCP
+3. **Engram**: Tertiary memory backend via MCP
+4. **claude-mem**: Quaternary memory backend via MCP
+5. **Stateless**: Only when no memory backend is available
 
 ### Auto-Detection
 
 ```yaml
-memory_backend: mind_or_stateless
+memory_backend: robust_or_stateless
 ```
 
-In `mind_or_stateless` mode:
-- Check for Mind MCP tools
-- If not found, operate stateless and say so
+In `robust_or_stateless` mode:
+- Check backends in priority order: Mind → OpenSpec → Engram → claude-mem
+- If a backend is configured/available, agents MUST use it
+- Agents MUST NOT fall back to stateless while any backend is configured/available
+- If none are available, operate stateless and say so
+
+If any memory backend is configured/available, agents MUST use it and MUST NOT fall back to stateless.
 
 ### What Gets Persisted
 
