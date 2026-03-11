@@ -99,6 +99,7 @@ test:
 	@bash tests/rename_nova_nas_contract_test.sh
 	@bash tests/steps_policy_contract_test.sh
 	@bash tests/orchestrator_question_limit_contract_test.sh
+	@bash tests/hardening_pack_contract_test.sh
 	@bash tests/native_subagents_contract_test.sh
 	@bash tests/memory_policy_contract_test.sh
 	@bash tests/doctor_contract_test.sh

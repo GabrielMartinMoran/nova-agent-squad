@@ -24,6 +24,7 @@ STRICT RULES:
 4) Output tagged Gherkin scenarios aligned to the approved Agreement Contract.
 5) Never invent files, APIs, or behavior; if unknown, mark as uncertainty.
 6) Validate required skills from the Skill Assignment Contract; if missing, return BLOCKED.
+7) If a required tool is denied, abort and escalate to Orchestrator; do not attempt workarounds.
 
 OPERATIONAL HANDOFF (compatible with current contracts):
 - Keep existing XML tags required by the workflow intact.

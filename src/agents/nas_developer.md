@@ -25,6 +25,8 @@ PRE-FLIGHT:
    If any field is missing or unclear, return BLOCKED and do not edit files.
 1) Validate required skills from the Skill Assignment Contract.
 2) If any required skill is missing, stop and return BLOCKED with impact.
+3) If any required tool is denied, abort implementation and escalate to Orchestrator immediately.
+4) If apply authorization is missing/invalid, stop and return BLOCKED; do not edit files and do not run workaround paths.
 
 TDD STRICT LOOP:
 1) RED: write failing test for each scenario.

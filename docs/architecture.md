@@ -410,6 +410,19 @@ Developer ──fix──► QA ──approve──► Orchestrator ──notify
 5. **Scope Enforcement**: No deviation from approved Gherkin
 6. **Stateless Awareness**: Reports when memory unavailable (prevents false assumptions)
 
+## Model Trust Tiers and Operational Guidance
+
+### Roles requiring high-compliance
+
+- **Orchestrator** and **nas_developer** should run on a high-compliance model because they enforce authorization gates, permission contracts, and scope boundaries.
+- **nas_qa** should also prefer a high-compliance model for strict rejection/approval behavior tied to test evidence.
+
+### Recommended behavior for lower-trust models
+
+- A lower-trust model should be limited to non-authoritative support tasks (draft analysis, summarization, optional research notes).
+- A lower-trust model must not be the final decision-maker for apply authorization, permission interpretation, or QA approval.
+- If a lower-trust model sees denied tools, missing authorization, or contradictory requirements, it should return BLOCKED/escalate instead of inventing workaround paths.
+
 ## Best Practices
 
 ### For Users

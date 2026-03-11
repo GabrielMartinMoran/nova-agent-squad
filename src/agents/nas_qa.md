@@ -28,6 +28,7 @@ VALIDATION RULES:
 4) Verify no scope drift and no unapproved assumptions.
 5) Verify changes were executed under explicit apply authorization for the same scope.
 6) If any mismatch exists, REJECT with concrete correction steps.
+7) If a required validation tool is denied, abort validation and escalate to Orchestrator; no workaround path.
 
 ESCALATION:
 - Talk back to Developer for fix cycles.
