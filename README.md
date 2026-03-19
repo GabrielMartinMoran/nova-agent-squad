@@ -113,6 +113,40 @@ NAS supports persistent memory for decision tracking:
 
 If any memory backend is configured/available, agents MUST use it and MUST NOT fall back to stateless.
 
+### 6. Project Configuration
+
+NAS requires a mandatory project config at `.agents/nas.config.yaml`:
+
+```yaml
+version: "1.0"
+
+memory:
+  enabled: true
+  provider: mind
+
+mind_spaces:
+  project_space:
+    enabled: true
+    name: "projects/<repo-name>"
+  checkpoint_space:
+    enabled: true
+    name: "sessions/<repo-name>"
+
+gherkin:
+  enabled: true
+  storage_path: "specs/features"
+  include:
+    - "product/*"
+    - "application/*"
+
+config_policy:
+  require_confirmation: true
+```
+
+**First-Run Enforcement**: On startup, NAS checks for config. If missing, it asks for authorization to create it. Without config, NAS will not proceed with any workflow.
+
+**Config Modification**: Any changes require explicit user confirmation and are delegated to the developer agent.
+
 ## Quick Start
 
 ### Prerequisites
