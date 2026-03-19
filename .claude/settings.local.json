@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(bash tests/project_config_contract_test.sh)",
+      "Bash(ls:*)",
+      "Bash(done)",
+      "Bash(git stash:*)",
+      "Bash(make build:*)"
+    ]
+  }
+}
