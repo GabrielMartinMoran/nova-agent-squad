@@ -163,6 +163,66 @@ Status: [APPROVED|REJECTED|BLOCKED]
 </required_action>
 ```
 
+## Project Configuration
+
+NAS requires a mandatory project config file at `.agents/nas.config.yaml`. This file configures memory, mind spaces, Gherkin persistence, and modification policies.
+
+### Config Schema
+
+```yaml
+version: "1.0"  # Required: config schema version
+
+memory:
+  enabled: true  # Enable/disable enhanced memory
+  provider: mind  # mind | openspec | engram | claude-mem | stateless
+
+mind_spaces:
+  project_space:
+    enabled: true
+    name: "projects/<repo-name>"
+    description: "Project context and decisions"
+  checkpoint_space:
+    enabled: true
+    name: "sessions/<repo-name>"
+    description: "Work session progress"
+
+gherkin:
+  enabled: true
+  storage_path: "specs/features"
+  include:
+    - "product/*"
+    - "application/*"
+  exclude:
+    - "researcher/*"
+    - "sandbox/*"
+
+config_policy:
+  require_confirmation: true
+```
+
+### First-Run Enforcement
+
+First run = whenever NAS runs and `.agents/nas.config.yaml` is missing.
+
+**On startup, the orchestrator MUST:**
+1. Check for config existence
+2. If missing: halt workflow, ask user for authorization to create
+3. On authorization: delegate config creation to `nas_developer` (orchestrator has no write tools)
+4. If not authorized: refuse to proceed
+
+### Config Modification Policy
+
+- Any config change requires explicit user confirmation
+- Changes are delegated to `nas_developer` (not written by orchestrator)
+- Config modifications are auditable via git history
+
+### Runtime Config Propagation
+
+The orchestrator passes enabled config sections to subagents:
+- Only include blocks where `enabled: true`
+- Exception: when task is specifically to edit config, pass full config
+- Subagents use `mind_spaces` config for memory integration
+
 ## Authorization System
 
 ### The Three-Layer Guard
