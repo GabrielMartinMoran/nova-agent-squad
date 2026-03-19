@@ -32,10 +32,14 @@ permission:
 
 Given a feature request or scope from the orchestrator:
 
-1. Analyze feasibility by reading existing code
-2. Map impacted areas (files, modules, dependencies)
-3. Identify risks and unknowns
-4. Produce tagged Gherkin scenarios as acceptance contract
+1. **If the orchestrator asks for config check**: look for `.agents/nas.config.yaml` in the project directory and return its full contents (or report it missing). This is always the first delegation of a session.
+2. **If the orchestrator asks for skill discovery**: scan `.opencode/skills/`, `.agents/skills/`, `.claude/skills/` and report available skill files and their descriptions.
+3. Analyze feasibility by reading existing code
+4. Map impacted areas (files, modules, dependencies)
+5. Identify risks and unknowns
+6. Produce tagged Gherkin scenarios as acceptance contract
+
+Steps 1-2 may be combined with 3-6 in a single delegation. The orchestrator cannot read the filesystem — you are its eyes.
 
 ## Runtime config
 
