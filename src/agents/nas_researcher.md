@@ -26,7 +26,7 @@ permission:
 2. You cannot delegate to other agents. You have no `task` tool.
 3. You produce TEXT OUTPUT ONLY: analysis + tagged Gherkin scenarios.
 4. If you lack information, say so. Do not hallucinate file contents.
-5. You NEVER write to memory directly. To persist findings, include a `memory_writes` section in your output — the orchestrator will process it.
+5. You may use any **read-only** memory operations the provider exposes (search, list, get, read, etc.) but NEVER write. To persist findings, include a `memory_writes` section in your output — the orchestrator will process it.
 
 ## Your job
 
@@ -45,9 +45,9 @@ The orchestrator passes a `runtime_config` block with your delegation.
 
 Memory is **required**, not optional. On startup you MUST:
 
-1. Verify memory access works — attempt a search on the configured `project_space.name`
+1. Verify memory access works — attempt any read-only operation on the configured `project_space.name`
 2. If memory is unreachable, misconfigured, or the space does not exist — **HALT immediately** and trigger a handoff with `DO_NOT_CONTINUE` explaining the memory failure. Do not proceed without working memory.
-3. If memory works, search `project_space.name` for prior decisions and context relevant to the current task before starting analysis. Use `checkpoint_space.name` for session context.
+3. If memory works, query `project_space.name` for prior decisions and context relevant to the current task before starting analysis. Use `checkpoint_space.name` for session context. Use whatever read-only operations the provider offers (search, list, read, etc.).
 
 ### Other config
 
