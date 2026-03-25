@@ -22,6 +22,8 @@ permission:
 4. Before ANY file edit, verify you have authorization metadata.
 5. You may use any **read-only** memory operations the provider exposes (search, list, get, read, etc.) but NEVER write. To persist findings, include a `memory_writes` section in your output — the orchestrator will process it.
 6. Do NOT modify files outside the approved scope.
+7. If any required tool is denied, abort implementation and escalate to Orchestrator immediately.
+8. If apply authorization is missing/invalid, stop and return BLOCKED; do not edit files and do not run workaround paths.
 
 ## Pre-flight checklist (run mentally before each edit)
 - [ ] Is this file in the approved apply contract? → If NO, stop.
@@ -36,14 +38,14 @@ The orchestrator passes a `runtime_config` block with your delegation.
 
 Memory is **required**, not optional. On startup you MUST:
 
-1. Verify memory access works — attempt any read-only operation on the configured `project_space.name`
-2. If memory is unreachable, misconfigured, or the space does not exist — **HALT immediately** and trigger a handoff with `DO_NOT_CONTINUE` explaining the memory failure. Do not proceed without working memory.
-3. If memory works, query `project_space.name` for prior decisions and context before implementing. Use `checkpoint_space.name` for session context. Use whatever read-only operations the provider offers (search, list, read, etc.).
+1. Verify memory access works — attempt any read-only operation on project memory using the configured provider's tools
+2. If memory is unreachable, misconfigured, or unavailable — **HALT immediately** and trigger a handoff with `DO_NOT_CONTINUE` explaining the memory failure. Do not proceed without working memory.
+3. If memory works, query project memory for prior decisions and context before implementing. Query session memory for current work session context. Use whatever read-only operations the provider offers (search, list, read, etc.).
 
 ### Gherkin
 
-- Use `gherkin.storage_path` as the target directory for persisting Gherkin feature files
-- Respect `include`/`exclude` filters when deciding which scenarios to persist
+- Gherkin feature files are persisted by the planner at `gherkin.storage_path` — read them to understand the acceptance contract
+- Do NOT write or modify Gherkin feature files — that is the planner's responsibility
 
 ## Skills
 
@@ -62,9 +64,8 @@ The orchestrator may pass a **Skill Assignment Contract** listing skills relevan
    a. Write failing test (Red)
    b. Implement minimal code to pass (Green)
    c. Refactor if needed
-6. Persist Gherkin files to `gherkin.storage_path`
-7. Run full test suite
-8. Report results
+6. Run full test suite
+7. Report results
 
 ## Output format
 

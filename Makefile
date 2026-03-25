@@ -57,7 +57,7 @@ uninstall:
 
 validate:
 	@echo "Validating centralized agent structure..."
-	@for agent in "Nova Agent Squad" nas_researcher nas_developer nas_qa; do \
+	@for agent in "Nova Agent Squad" nas_researcher nas_planner nas_developer nas_qa; do \
 		if [ -f "src/agents/$$agent.md" ]; then \
 			echo "✓ src/agents/$$agent.md"; \
 		else \
@@ -74,7 +74,7 @@ validate:
 	done
 	@if [ -d "dist/platforms/opencode/agents" ]; then \
 		echo "Validating built artifacts under dist/platforms/opencode/agents..."; \
-		for agent in "Nova Agent Squad" nas_researcher nas_developer nas_qa; do \
+		for agent in "Nova Agent Squad" nas_researcher nas_planner nas_developer nas_qa; do \
 			if [ -f "dist/platforms/opencode/agents/$$agent.md" ]; then \
 				echo "✓ dist/platforms/opencode/agents/$$agent.md"; \
 			else \

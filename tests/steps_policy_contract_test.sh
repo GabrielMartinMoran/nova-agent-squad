@@ -23,12 +23,14 @@ assert_not_contains() {
 
 # Scenario: Frontmatter no longer uses step limits
 assert_not_contains "dist/platforms/opencode/agents/nas_researcher.md" "steps:"
+assert_not_contains "dist/platforms/opencode/agents/nas_planner.md" "steps:"
 assert_not_contains "dist/platforms/opencode/agents/nas_developer.md" "steps:"
 assert_not_contains "dist/platforms/opencode/agents/nas_qa.md" "steps:"
 assert_not_contains "dist/platforms/opencode/agents/Nova Agent Squad.md" "steps:"
 
 for file in \
   "dist/platforms/opencode/agents/nas_researcher.md" \
+  "dist/platforms/opencode/agents/nas_planner.md" \
   "dist/platforms/opencode/agents/nas_developer.md" \
   "dist/platforms/opencode/agents/nas_qa.md"
 do

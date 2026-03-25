@@ -30,10 +30,9 @@ assert_contains "src/agents/Nova Agent Squad.md" "version:"
 assert_contains "src/agents/Nova Agent Squad.md" "memory:"
 assert_contains "src/agents/Nova Agent Squad.md" "provider: mind"
 
-# Scenario: Config schema includes mind spaces (project + checkpoint)
+# Scenario: Config schema includes mind spaces (project space for memories and checkpoints)
 assert_contains "src/agents/Nova Agent Squad.md" "mind_spaces:"
 assert_contains "src/agents/Nova Agent Squad.md" "project_space:"
-assert_contains "src/agents/Nova Agent Squad.md" "checkpoint_space:"
 
 # Scenario: Config schema includes gherkin persistence with filters
 assert_contains "src/agents/Nova Agent Squad.md" "gherkin:"
@@ -65,7 +64,6 @@ assert_contains "src/agents/Nova Agent Squad.md" "**\`version\`**: Config schema
 assert_contains "src/agents/Nova Agent Squad.md" "memory.enabled"
 assert_contains "src/agents/Nova Agent Squad.md" "memory.provider"
 assert_contains "src/agents/Nova Agent Squad.md" "mind_spaces.project_space"
-assert_contains "src/agents/Nova Agent Squad.md" "mind_spaces.checkpoint_space"
 assert_contains "src/agents/Nova Agent Squad.md" "gherkin.enabled"
 assert_contains "src/agents/Nova Agent Squad.md" "gherkin.include"
 assert_contains "src/agents/Nova Agent Squad.md" "gherkin.exclude"
@@ -73,10 +71,9 @@ assert_contains "src/agents/Nova Agent Squad.md" "config_policy.require_confirma
 
 # Scenario: Quick Start Defaults section exists (new requirement)
 assert_contains "src/agents/Nova Agent Squad.md" "### Quick Start Defaults"
-assert_contains "src/agents/Nova Agent Squad.md" "version: \"1.0\""
+assert_contains "src/agents/Nova Agent Squad.md" "version: \"1.1\""
 assert_contains "src/agents/Nova Agent Squad.md" "provider: mind"
 assert_contains "src/agents/Nova Agent Squad.md" "name: \"projects/myproject\""
-assert_contains "src/agents/Nova Agent Squad.md" "name: \"sessions/myproject\""
 assert_contains "src/agents/Nova Agent Squad.md" "storage_path: \"specs/features\""
 
 # Scenario: Monorepo guidance with package-level examples

@@ -29,6 +29,7 @@ assert_not_exists() {
 # Scenario: source-of-truth central exists (OpenCode canon + templates + manifest)
 assert_exists "src/agents/Nova Agent Squad.md"
 assert_exists "src/agents/nas_researcher.md"
+assert_exists "src/agents/nas_planner.md"
 assert_exists "src/agents/nas_developer.md"
 assert_exists "src/agents/nas_qa.md"
 assert_exists "src/templates/platforms/cursor/AGENTS.md.tmpl"
@@ -43,6 +44,7 @@ assert_exists "config/platforms.manifest"
 make build TARGET=opencode >/tmp/nas-build-opencode.log
 assert_exists "dist/platforms/opencode/agents/Nova Agent Squad.md"
 assert_exists "dist/platforms/opencode/agents/nas_researcher.md"
+assert_exists "dist/platforms/opencode/agents/nas_planner.md"
 assert_exists "dist/platforms/opencode/agents/nas_developer.md"
 assert_exists "dist/platforms/opencode/agents/nas_qa.md"
 
@@ -50,6 +52,7 @@ make build TARGET=cursor >/tmp/nas-build-cursor.log
 assert_exists "dist/platforms/cursor/AGENTS.md"
 assert_contains "dist/platforms/cursor/AGENTS.md" "nas_orchestrator"
 assert_contains "dist/platforms/cursor/AGENTS.md" "nas_researcher"
+assert_contains "dist/platforms/cursor/AGENTS.md" "nas_planner"
 assert_contains "dist/platforms/cursor/AGENTS.md" "nas_developer"
 assert_contains "dist/platforms/cursor/AGENTS.md" "nas_qa"
 

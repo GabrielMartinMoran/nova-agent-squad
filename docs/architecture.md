@@ -4,31 +4,31 @@ This document provides a detailed technical overview of the Nova Agent Squad arc
 
 ## System Overview
 
-Nova Agent Squad (NAS) is a four-agent system built on OpenCode's agent framework. Each agent has a specific role, strict permissions, and communicates through structured XML contracts.
+Nova Agent Squad (NAS) is a five-agent system built on OpenCode's agent framework. Each agent has a specific role, strict permissions, and communicates through structured XML contracts.
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                      USER                                       │
-│                          │                                      │
-│                          ▼                                      │
-│  ┌─────────────────────────────────────────────────────────┐   │
-│  │          Nova Agent Squad (Orchestrator)           │   │
-│  │  ┌─────────────────────────────────────────────────────┐│   │
-│  │  │ • Plans and coordinates                             ││   │
-│  │  │ • Challenges weak requests                          ││   │
-│  │  │ • Manages authorization gates                       ││   │
-│  │  │ • Delegates to subagents                            ││   │
-│  │  │ • NEVER edits code                                   ││   │
-│  │  └─────────────────────────────────────────────────────┘│   │
-│  └──────────────────────────┬────────────────────────────────┘   │
-│                             │                                     │
-│         ┌──────────────────┼──────────────────┐                   │
-│         ▼                  ▼                  ▼                   │
-│  ┌─────────────┐   ┌─────────────┐   ┌─────────────┐             │
-│  │    nas_      │   │   nas_      │   │    nas_     │             │
-│  │  researcher  │   │  developer  │   │     qa      │             │
-│  └─────────────┘   └─────────────┘   └─────────────┘             │
-└─────────────────────────────────────────────────────────────────┘
+┌────────────────────────────────────────────────────────────────┐
+│                           USER                                 │
+│                             │                                  │
+│                             V                                  │
+│  ┌──────────────────────────────────────────────────────────┐  │
+│  │          Nova Agent Squad (Orchestrator)                 │  │
+│  │  ┌────────────────────────────────────────────────────┐  │  │
+│  │  │ • Plans and coordinates                            │  │  │ 
+│  │  │ • Challenges weak requests                         │  │  │ 
+│  │  │ • Manages authorization gates                      │  │  │ 
+│  │  │ • Delegates to subagents                           │  │  │
+│  │  │ • NEVER edits code                                 │  │  │
+│  │  └────────────────────────────────────────────────────┘  │  │
+│  └──────────────────────────┬───────────────────────────────┘  │
+│                             │                                  │
+│        ┌──────────────┬─────┴────────┬──────────────┐          │
+│        V              V              V              V          │
+│   ┌──────────┐   ┌──────────┐   ┌──────────┐   ┌──────────┐    │
+│   │   nas_   │   │   nas_   │   │   nas_   │   │   nas_   │    │
+│   │researcher│   │ planner  │   │developer │   │    qa    │    │
+│   └──────────┘   └──────────┘   └──────────┘   └──────────┘    │
+└────────────────────────────────────────────────────────────────┘
 ```
 
 ## Agent Roles
@@ -59,29 +59,62 @@ The orchestrator acts as Manager and Tech Lead. It is the only agent that intera
 
 ### 2. nas_researcher
 
-**Mode**: Subagent (hidden)  
-**Permissions**: Read, search, webfetch; no edit, no bash
+**Mode**: Subagent (hidden)
+**Permissions**: Read, search, webfetch, websearch; no edit, no bash
 
 **Operational handoff policy**:
 - Handoff is condition-based: **blocked, risk, or insufficient progress**.
 
-The researcher analyzes the codebase and produces formal specifications.
+The researcher exhaustively investigates the codebase and external sources. It does NOT produce Gherkin scenarios — that is the planner's job.
 
 **Responsibilities**:
 - Map codebase and identify impacted areas
-- Research external documentation and alternatives
-- Output tagged Gherkin scenarios
+- Research external documentation, library APIs, and best practices
+- Exhaust all available information sources (websearch, webfetch, MCPs)
 - Validate skill requirements
 - Report feasibility and risks
+- Produce comprehensive research reports for the planner
 
 **Output Format**:
 ```xml
-<feasibility>
-(Feasibility summary, impacted files, risks)
-</feasibility>
-<researched_alternatives>
-(What was researched and recommended approach)
-</researched_alternatives>
+<research_report>
+<feasibility>(Summary)</feasibility>
+<codebase_findings>(Files, patterns, conventions found)</codebase_findings>
+<external_findings>(Documentation, APIs, best practices found)</external_findings>
+<impacted_areas>(Files and modules affected)</impacted_areas>
+<dependencies>(Internal and external dependencies)</dependencies>
+<risks>(Risk descriptions with severity)</risks>
+<existing_tests>(Test patterns and coverage gaps)</existing_tests>
+<assumptions>(What was inferred)</assumptions>
+<sources_consulted>(All sources investigated)</sources_consulted>
+</research_report>
+```
+
+### 3. nas_planner
+
+**Mode**: Subagent (hidden)
+**Permissions**: Read, search, write (Gherkin only), webfetch, websearch; no edit, no bash
+
+**Operational handoff policy**:
+- Handoff is condition-based: **blocked, risk, or insufficient progress**.
+
+The planner designs the implementation strategy using SDD methodology. It receives the researcher's report and produces tagged Gherkin scenarios, technical design, and implementation tasks. It persists Gherkin feature files when enabled.
+
+**Responsibilities**:
+- Analyze the research report and validate findings
+- Consult external documentation for design decisions (library APIs, best practices)
+- Design the implementation strategy and architecture decisions
+- Produce tagged Gherkin scenarios as acceptance contracts
+- Persist Gherkin feature files to `gherkin.storage_path` (when `gherkin.enabled`)
+- Define ordered implementation tasks for the developer
+- Update the plan and Gherkin files when re-delegated with user feedback
+
+**Output Format**:
+```xml
+<planning_output>
+<feasibility>(Verdict based on research + own analysis)</feasibility>
+<approach>(Technical strategy and architecture decisions)</approach>
+<external_docs_consulted>(URLs and what was learned)</external_docs_consulted>
 <gherkin>
 @tag1 @tag2
 Feature: [Name]
@@ -90,9 +123,13 @@ Feature: [Name]
     When [Action]
     Then [Expected result]
 </gherkin>
+<implementation_tasks>(Ordered steps for the developer)</implementation_tasks>
+<risks>(Risk descriptions and mitigations)</risks>
+<assumptions>(What was inferred)</assumptions>
+</planning_output>
 ```
 
-### 3. nas_developer
+### 4. nas_developer
 
 **Mode**: Subagent (hidden)  
 **Permissions**: Full edit, bash, webfetch
@@ -126,7 +163,7 @@ Action: [File changed or command executed]
 </tdd_cycle>
 ```
 
-### 4. nas_qa
+### 5. nas_qa
 
 **Mode**: Subagent (hidden)  
 **Permissions**: Read, bash; no edit
@@ -170,7 +207,7 @@ NAS requires a mandatory project config file at `.agents/nas.config.yaml`. This 
 ### Config Schema
 
 ```yaml
-version: "1.0"  # Required: config schema version
+version: "1.1"  # Required: config schema version
 
 memory:
   enabled: true  # Enable/disable enhanced memory
@@ -180,11 +217,7 @@ mind_spaces:
   project_space:
     enabled: true
     name: "projects/<repo-name>"
-    description: "Project context and decisions"
-  checkpoint_space:
-    enabled: true
-    name: "sessions/<repo-name>"
-    description: "Work session progress"
+    description: "Project context, decisions, and session checkpoints"
 
 gherkin:
   enabled: true
@@ -346,14 +379,16 @@ If any memory backend is configured/available, agents MUST use it and MUST NOT f
 
 ## Permissions Matrix
 
-| Tool | Orchestrator | Researcher | Developer | QA |
-|------|-------------|-----------|----------|-----|
-| read | ✓ | ✓ | ✓ | ✓ |
-| edit | ✗ | ✗ | ✓ | ✗ |
-| bash | ✗ | ✗ | ✓ | ✓ |
-| webfetch | ✓ | ✓ | ✓ | ✓ |
-| task | ✓ (restricted) | ✗ | ✗ | ✗ |
-| grep/glob | ✓ | ✓ | ✓ | ✓ |
+| Tool | Orchestrator | Researcher | Planner | Developer | QA |
+|------|-------------|-----------|---------|----------|-----|
+| read | ✗ | ✓ | ✓ | ✓ | ✓ |
+| write | ✗ | ✗ | ✓ (Gherkin only) | ✓ | ✗ |
+| edit | ✗ | ✗ | ✗ | ✓ | ✗ |
+| bash | ✗ | ✗ | ✗ | ✓ | ✓ |
+| webfetch | ✓ | ✓ | ✓ | ✓ | ✓ |
+| websearch | ✗ | ✓ | ✓ | ✗ | ✗ |
+| task | ✓ (restricted) | ✗ | ✗ | ✗ | ✗ |
+| grep/glob | ✗ | ✓ | ✓ | ✓ | ✓ |
 
 ### Task Permissions (Orchestrator)
 
@@ -362,6 +397,7 @@ permission:
   task:
     "*": deny
     "nas_researcher": allow
+    "nas_planner": allow
     "nas_developer": allow
     "nas_qa": allow
 ```
@@ -379,20 +415,14 @@ User Request
       │
       ▼
 ┌────────────┐
-│Discover    │
-│Skills      │
-└─────┬──────┘
-      │
-      ▼
-┌────────────┐
-│Delegate to │◄── Researcher gets contract
+│Delegate to │◄── Researcher investigates exhaustively
 │Researcher  │
 └─────┬──────┘
       │
       ▼
 ┌────────────┐
-│Receive     │
-│Gherkin     │
+│Delegate to │◄── Planner receives research report
+│Planner     │    Designs strategy + Gherkin + tasks
 └─────┬──────┘
       │
       ▼
@@ -404,7 +434,7 @@ User Request
       ▼
 ┌────────────┐
 │Request     │◄── "Apply now?"
-│Authorization
+│Authorization│
 └─────┬──────┘
       │
    [User says "yes"]
@@ -446,6 +476,8 @@ User Request
 | Agent | Blocked By | Resolution |
 |-------|------------|------------|
 | Orchestrator | Missing critical skill | Ask user: proceed without skill or wait? |
+| Researcher | Insufficient sources or access | Return to orchestrator with partial report |
+| Planner | Incomplete research report | Return to orchestrator for re-investigation |
 | Developer | No apply authorization | Return to orchestrator for authorization |
 | Developer | Missing required skill | Return to orchestrator |
 | QA | Can't validate (missing skill/tool) | Return to orchestrator |
@@ -475,6 +507,7 @@ Developer ──fix──► QA ──approve──► Orchestrator ──notify
 ### Roles requiring high-compliance
 
 - **Orchestrator** and **nas_developer** should run on a high-compliance model because they enforce authorization gates, permission contracts, and scope boundaries.
+- **nas_planner** should run on a high-compliance model for precise specification writing and design decisions.
 - **nas_qa** should also prefer a high-compliance model for strict rejection/approval behavior tied to test evidence.
 
 ### Recommended behavior for lower-trust models

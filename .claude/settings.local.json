@@ -6,7 +6,9 @@
       "Bash(done)",
       "Bash(git stash:*)",
       "Bash(make build:*)",
-      "Bash(bash tests/steps_policy_contract_test.sh)"
+      "Bash(bash tests/steps_policy_contract_test.sh)",
+      "Bash(grep -r)",
+      "Bash(make test:*)"
     ]
   }
 }
