@@ -4,14 +4,14 @@ A production-ready, multi-platform multi-agent system that reduces hallucination
 
 ## Overview
 
-Nova Agent Squad (NAS) is a four-agent architecture for reliable, auditable software delivery. It enforces planning-first behavior, requires explicit user authorization before any file modification, and validates implementation against approved contracts and tagged Gherkin scenarios.
+Nova Agent Squad (NAS) is a five-agent architecture for reliable, auditable software delivery. It enforces planning-first behavior, requires explicit user authorization before any file modification, and validates implementation against approved contracts and tagged Gherkin scenarios.
 
 ## Why Nova Agent Squad?
 
 AI coding assistants are powerful but prone to hallucinations, scope drift, and unauthorized modifications. NAS addresses these issues through:
 
 - **Zero Unauthorized Changes**: Default to planning mode; implementation only after explicit user approval
-- **Role Separation**: Orchestrator (manager), Researcher (analyst), Developer (implementer), QA (validator)
+- **Role Separation**: Orchestrator (manager), Researcher (investigator), Planner (architect), Developer (implementer), QA (validator)
 - **Formal Specifications**: Gherkin scenarios with tags as the source of truth
 - **Anti-Hallucination Guards**: Three-layer validation (Orchestrator assumptions, Developer pre-flight, QA verification)
 - **Skill-Aware Workflow**: Automatically discovers and assigns relevant skills per task
@@ -23,10 +23,12 @@ flowchart TD
     U[User] --> O[Orchestrator\nNova Agent Squad]
 
     O -->|Scope + constraints| R[nas_researcher]
+    O -->|Research report + request| P[nas_planner]
     O -->|Approved apply contract + required skills| D[nas_developer]
     O -->|Verification request + acceptance contract| Q[nas_qa]
 
-    R -->|Feasibility analysis + tagged Gherkin| O
+    R -->|Exhaustive research report| O
+    P -->|Tagged Gherkin + technical design + tasks| O
     D -->|TDD implementation report + checks| O
     Q -->|Contract/Gherkin/quality-gates verdict| O
 
@@ -44,7 +46,8 @@ flowchart TD
 | Agent | Mode | Role |
 |-------|------|------|
 | `Nova Agent Squad` | primary | Orchestrator: discovers installed skills, assigns required skills to subagents, coordinates workflow, escalates decisions, never performs implementation edits |
-| `nas_researcher` | subagent | Research: evaluates feasibility, maps impacted areas, and produces tagged Gherkin scenarios/acceptance contracts |
+| `nas_researcher` | subagent | Research: exhaustive investigation of codebase, documentation, and external sources. Produces comprehensive research reports |
+| `nas_planner` | subagent | Planner: designs implementation strategy, produces tagged Gherkin scenarios and technical design using SDD methodology |
 | `nas_developer` | subagent | Developer: executes TDD (Red→Green→Refactor) and implements only within explicitly approved apply contract scope |
 | `nas_qa` | subagent | QA: verifies implementation against approved contract + tagged Gherkin + quality gates (tests/lint/checks) |
 
@@ -52,7 +55,7 @@ flowchart TD
 
 ### Operational Handoff Policy
 
-NAS subagents `nas_researcher`, `nas_developer`, and `nas_qa` use condition-based handoff triggers.
+NAS subagents `nas_researcher`, `nas_planner`, `nas_developer`, and `nas_qa` use condition-based handoff triggers.
 Handoff is used when there is **blocked, risk, or insufficient progress**.
 
 When a handoff is required, agents provide a structured **handoff** block compatible with existing XML contracts, including:
@@ -67,10 +70,11 @@ When a handoff is required, agents provide a structured **handoff** block compat
 Every feature request starts in planning mode. The orchestrator will:
 1. Clarify ambiguities
 2. Discover available skills
-3. Delegate to researcher for feasibility and specs
-4. Present findings for approval
-5. **Ask**: "Implementation plan is ready. Do you want me to apply it now?"
-6. Only after explicit "yes" will it delegate to developer
+3. Delegate to researcher for exhaustive investigation
+4. Delegate to planner for implementation strategy and Gherkin specs
+5. Present the plan for approval
+6. **Ask**: "Implementation plan is ready. Do you want me to apply it now?"
+7. Only after explicit "yes" will it delegate to developer
 
 Planning uses a hybrid confirmation policy: confirm only scope changes or critical assumptions, and do not request confirmation for minor analysis/spec steps.
 
@@ -118,7 +122,7 @@ If any memory backend is configured/available, agents MUST use it and MUST NOT f
 NAS requires a mandatory project config at `.agents/nas.config.yaml`:
 
 ```yaml
-version: "1.0"
+version: "1.1"
 
 memory:
   enabled: true
@@ -128,9 +132,6 @@ mind_spaces:
   project_space:
     enabled: true
     name: "projects/<repo-name>"
-  checkpoint_space:
-    enabled: true
-    name: "sessions/<repo-name>"
 
 gherkin:
   enabled: true
@@ -243,10 +244,11 @@ For OpenCode, edit `~/.config/opencode/opencode.json` and remove or change the `
 When you start NAS on your selected platform runtime, you'll be working with the Nova Agent Squad orchestrator. Just describe what you want to build:
 
 1. **Describe your feature** - The orchestrator will analyze and ask clarifying questions
-2. **Review the plan** - Researcher will produce Gherkin specs
-3. **Approve or refine** - You can modify scope, add constraints, or request alternatives
-4. **Authorize implementation** - When ready, say "yes" to apply
-5. **QA validates** - After implementation, QA verifies against specs
+2. **Research** - Researcher exhaustively investigates the codebase and external sources
+3. **Plan** - Planner designs the implementation strategy and produces Gherkin specs
+4. **Approve or refine** - You can modify scope, add constraints, or request alternatives
+5. **Authorize implementation** - When ready, say "yes" to apply
+6. **QA validates** - After implementation, QA verifies against specs
 
 ### Example Workflow
 
@@ -261,7 +263,9 @@ Orchestrator: Let me clarify a few things:
 You: JWT tokens, /api/users and /api/orders, yes User model exists
 
 [Orchestrator delegates to Researcher...]
-[Researcher produces Gherkin specs...]
+[Researcher produces exhaustive research report...]
+[Orchestrator delegates to Planner...]
+[Planner designs strategy and produces Gherkin specs...]
 [Orchestrator presents plan...]
 
 Orchestrator: Implementation plan is ready. Do you want me to apply it now?

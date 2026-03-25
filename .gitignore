@@ -30,3 +30,4 @@ dist/
 # Backup
 *.bak
 *.backup
+.claude/settings.local.json

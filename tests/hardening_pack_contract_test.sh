@@ -60,6 +60,7 @@ assert_contains "$orchestrator_file" "If any required action needs a denied tool
 assert_contains "$orchestrator_file" "No workaround, no alternate tool path, and no hidden implementation attempts."
 
 assert_contains "dist/platforms/opencode/agents/nas_researcher.md" "If a required tool is denied, abort and escalate to Orchestrator; do not attempt workarounds."
+assert_contains "dist/platforms/opencode/agents/nas_planner.md" "If a required tool is denied, abort and escalate to Orchestrator; do not attempt workarounds."
 assert_contains "dist/platforms/opencode/agents/nas_developer.md" "If any required tool is denied, abort implementation and escalate to Orchestrator immediately."
 assert_contains "dist/platforms/opencode/agents/nas_developer.md" "If apply authorization is missing/invalid, stop and return BLOCKED; do not edit files and do not run workaround paths."
 assert_contains "dist/platforms/opencode/agents/nas_qa.md" "If a required validation tool is denied, abort validation and escalate to Orchestrator; no workaround path."

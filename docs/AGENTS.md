@@ -84,7 +84,7 @@ permission:
 
 ## Operational Policy: condition-based handoff
 
-For `nas_researcher`, `nas_developer`, and `nas_qa`:
+For `nas_researcher`, `nas_planner`, `nas_developer`, and `nas_qa`:
 
 - Handoff triggers are condition-based: **blocked, risk, or insufficient progress**.
 
@@ -174,15 +174,27 @@ Delegation via Task tool with context
 
 ### Researcher → Orchestrator
 ```xml
-<feasibility>
-(Summary...)
-</feasibility>
-<rearched_alternatives>
-(Research results...)
-</researched_alternatives>
-<gherkin>
-Feature: ...
-</gherkin>
+<research_report>
+<feasibility>(Summary...)</feasibility>
+<codebase_findings>(Files, patterns found...)</codebase_findings>
+<external_findings>(Docs, APIs, best practices...)</external_findings>
+<impacted_areas>(Files and modules...)</impacted_areas>
+<risks>(Risk descriptions...)</risks>
+<sources_consulted>(All sources investigated...)</sources_consulted>
+</research_report>
+```
+
+### Orchestrator → Planner
+Delegation via Task tool with research report + original request
+
+### Planner → Orchestrator
+```xml
+<planning_output>
+<feasibility>(Verdict...)</feasibility>
+<approach>(Technical strategy...)</approach>
+<gherkin>Feature: ...</gherkin>
+<implementation_tasks>(Ordered steps...)</implementation_tasks>
+</planning_output>
 ```
 
 ### Developer → QA (via output)
