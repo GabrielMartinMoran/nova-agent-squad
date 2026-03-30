@@ -109,23 +109,58 @@ The planner designs the implementation strategy using SDD methodology. It receiv
 - Define ordered implementation tasks for the developer
 - Update the plan and Gherkin files when re-delegated with user feedback
 
-**Output Format**:
+**Output Format** (Memory-Centric SDD):
 ```xml
 <planning_output>
 <feasibility>(Verdict based on research + own analysis)</feasibility>
 <approach>(Technical strategy and architecture decisions)</approach>
 <external_docs_consulted>(URLs and what was learned)</external_docs_consulted>
+
+<!-- Change Memory block for Memory-Centric SDD -->
+<change_memory>
+<id>sdd-{type}-{name}-{timestamp}</id>
+<type>feature | fix | refactor | docs | test | chore</type>
+<name>short descriptive name</name>
+<proposal>
+## Intent
+Why are we doing this?
+
+## Scope
+In scope: ...
+Out of scope: ...
+</proposal>
+<approach>
+## Technical Approach
+How will it be implemented?
+
+## Design Decisions
+- Decision 1: ... (because ...)
+</approach>
 <gherkin>
-@tag1 @tag2
+@delta-added
 Feature: [Name]
   Scenario: [Scenario 1]
     Given [Context]
     When [Action]
     Then [Expected result]
 </gherkin>
+<tasks>
+## Phase 1: ...
+- [ ] 1.1 Task description
+</tasks>
+<status>PENDING</status>
+</change_memory>
+
 <implementation_tasks>(Ordered steps for the developer)</implementation_tasks>
+<gherkin_persisted>(Files created/updated)</gherkin_persisted>
 <risks>(Risk descriptions and mitigations)</risks>
 <assumptions>(What was inferred)</assumptions>
+<memory_writes>
+- space: "projects/{repo-name}"
+  name: "sdd-{type}-{name}"
+  content: (Full change_memory XML)
+  tags: ["cat:sdd", "type:change_memory", "status:pending", "delta:{type}"]
+</memory_writes>
 </planning_output>
 ```
 
@@ -207,7 +242,7 @@ NAS requires a mandatory project config file at `.agents/nas.config.yaml`. This 
 ### Config Schema
 
 ```yaml
-version: "1.1"  # Required: config schema version
+version: "1.2"  # Required: config schema version
 
 memory:
   enabled: true  # Enable/disable enhanced memory
@@ -222,12 +257,25 @@ mind_spaces:
 gherkin:
   enabled: true
   storage_path: "specs/features"
+  persist_to_repo:
+    when: "on_done"   # always | on_done | never
+    format: "merged"   # merged | delta (merged = final state only)
   include:
     - "product/*"
     - "application/*"
   exclude:
     - "researcher/*"
     - "sandbox/*"
+
+# Memory-Centric SDD Configuration
+sdd:
+  enabled: true                    # enable Memory-Centric SDD
+  change_memory:
+    auto_create: true              # auto-create Change Memory on planning
+  delta:
+    removal_policy: "remove"       # remove | mark_deprecated
+    resolve_on: "on_done"          # on_done | on_archive | manual | never
+  memory_tracking: true            # track lifecycle in memory
 
 config_policy:
   require_confirmation: true
