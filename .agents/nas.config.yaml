@@ -13,8 +13,14 @@ gherkin:
   enabled: true
   storage_path: "specs/features"
   persist_to_repo:
-    when: "on_done"   # always | on_done | never
-    format: "merged"   # merged | delta (merged = final state only)
+    when: "on_done"   # always = every planning/replanning pass; on_done = once the plan is finalized/approved before developer execution; never = delegation/output only
+    format: "merged"   # merged = canonical full .feature files; delta = reserved/experimental unless separately contracted
+  include:
+    - "product/*"
+    - "application/*"
+  exclude:
+    - "researcher/*"
+    - "sandbox/*"
 
 # Memory-Centric SDD Configuration
 sdd:

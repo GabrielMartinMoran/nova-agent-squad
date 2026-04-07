@@ -56,7 +56,7 @@ flowchart TD
 ### Operational Handoff Policy
 
 NAS subagents `nas_researcher`, `nas_planner`, `nas_developer`, and `nas_qa` use condition-based handoff triggers.
-Handoff is used when there is **blocked, risk, or insufficient progress**.
+Handoff is used when there is **blocked, at risk, or insufficient progress**.
 
 When a handoff is required, agents provide a structured **handoff** block compatible with existing XML contracts, including:
 - `current_progress`
@@ -71,19 +71,26 @@ Every feature request starts in planning mode. The orchestrator will:
 1. Clarify ambiguities
 2. Discover available skills
 3. Delegate to researcher for exhaustive investigation
-4. Delegate to planner for implementation strategy and Gherkin specs
-5. Present the plan for approval
-6. **Ask**: "Implementation plan is ready. Do you want me to apply it now?"
-7. Only after explicit "yes" will it delegate to developer
+4. Build the Skill Assignment Contract — which skills are relevant, which subagent needs them — before delegating to nas_planner
+5. Delegate to planner for implementation strategy and Gherkin specs
+6. Present the plan for approval, including a delegation plan with subagent order and exact skills
+7. **Ask**: "Implementation plan is ready. Do you want me to apply it now?"
+8. Never delegate to `nas_developer` until the plan has been presented and explicitly approved
+9. After implementation, delegate to `nas_qa` automatically before any completion update
 
 Planning uses a hybrid confirmation policy: confirm only scope changes or critical assumptions, and do not request confirmation for minor analysis/spec steps.
+Do not ask whether QA should run. QA is mandatory and automatic after implementation.
 
 ### 2. Authorization Gates
 
 - **Assumption Confirmation**: If the orchestrator infers any default, it must ask the user before proceeding
 - **Apply Authorization**: Each feature/scope requires explicit approval; prior approvals do not auto-apply to new changes
+- **Scope Change Rule**: The orchestrator must ask for explicit confirmation when scope changes from the approved contract
 - **Developer Pre-Flight**: Developer validates authorization metadata before editing any file
+- **Critical Assumption Rule**: The orchestrator must confirm any critical assumption before delegating implementation
 - **QA Verification**: QA confirms authorization was properly obtained
+- **Developer Gate**: Never delegate to `nas_developer` before the user explicitly approves the presented plan
+- **Auto-QA Gate**: After any implementation, `nas_qa` runs before completion is reported
 
 ### 3. Tagged Gherkin Specifications
 
@@ -98,13 +105,30 @@ Feature: User Authentication
     Then they should be redirected to the dashboard
 ```
 
+Repository Gherkin persistence follows an orchestrator-controlled contract.
+The planner is the only agent allowed to author or modify repository
+`.feature` files. Developer and QA consume persisted Gherkin read-only, and QA
+remains mandatory before completion.
+
+- `when: always` => planner writes/updates repo feature files on each planning/replanning pass
+- `when: on_done` => planner writes/updates repo feature files once the plan is finalized/approved for implementation, before developer execution
+- `when: never` => no repo writes; Gherkin stays in delegation/output only
+- `format: merged` => persisted files are full canonical `.feature` files for developer and QA consumption
+- `format: delta` => reserved/experimental unless separately contracted
+
 ### 4. Skill Discovery & Assignment
 
 The orchestrator automatically:
-1. Discovers installed skills (project-level + global)
-2. Builds a Skill Assignment Contract
-3. Assigns and passes required skills to each subagent
-4. Blocks implementation if critical skills are missing
+1. Discovers installed skills from repo-local and runtime/global sources
+2. Builds the Skill Assignment Contract — which skills are relevant, which subagent needs them — before delegating to `nas_planner`
+3. Assigns and passes exact approved skills to each subagent
+4. Echoes those exact approved skills in delegation prompts and handoffs
+5. Blocks implementation if critical skills are missing
+
+Skills are assigned through a task-specific skill assignment contract.
+The orchestrator discovers relevant skills, gets them approved for the current
+task, and passes the exact approved skills to each subagent. It does not keep
+permanent named-skill defaults.
 
 ### 5. Memory Integration
 
@@ -119,7 +143,9 @@ If any memory backend is configured/available, agents MUST use it and MUST NOT f
 
 ### 6. Project Configuration
 
-NAS requires a mandatory project config at `.agents/nas.config.yaml`:
+Every NAS project must define `.agents/nas.config.yaml` before normal
+workflow starts. The config is the canonical source for memory bootstrap,
+Gherkin persistence, and config mutation policy.
 
 ```yaml
 version: "1.1"
@@ -132,21 +158,46 @@ mind_spaces:
   project_space:
     enabled: true
     name: "projects/<repo-name>"
+    description: "Project context, decisions, architecture, and session checkpoints"
 
 gherkin:
   enabled: true
   storage_path: "specs/features"
+  persist_to_repo:
+    when: "on_done"
+    format: "merged"
   include:
     - "product/*"
     - "application/*"
+  exclude:
+    - "researcher/*"
+    - "sandbox/*"
+
+sdd:
+  enabled: true
+  change_memory:
+    auto_create: true
+  delta:
+    removal_policy: "remove"
+    resolve_on: "on_done"
+  memory_tracking: true
 
 config_policy:
   require_confirmation: true
 ```
 
-**First-Run Enforcement**: On startup, NAS checks for config. If missing, it asks for authorization to create it. Without config, NAS will not proceed with any workflow.
+The orchestrator decides whether repository Gherkin persistence happens via `gherkin.persist_to_repo`.
 
-**Config Modification**: Any changes require explicit user confirmation and are delegated to the developer agent.
+On startup, NAS checks for this file before any normal workflow. If it is
+missing, the orchestrator halts normal workflow, asks for authorization to
+create it, and refuses to proceed without it.
+
+Any config change requires explicit user confirmation and is delegated to
+`nas_developer`.
+
+When delegating runtime config, pass `version` plus only the enabled
+`memory`, `mind_spaces`, and `gherkin` blocks. Do not pass disabled config
+blocks unless the task is config editing.
 
 ## Quick Start
 

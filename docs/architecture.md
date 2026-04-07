@@ -45,9 +45,10 @@ The orchestrator acts as Manager and Tech Lead. It is the only agent that intera
 - Build the Agreement Contract (scope, constraints, assumptions)
 - Discover and assign skills
 - Delegate to Researcher for feasibility analysis
-- Present findings and request user authorization
-- Delegate to Developer for implementation
-- Delegate to QA for validation
+- Build the Skill Assignment Contract — which skills are relevant, which subagent needs them — before delegating to Planner
+- Present findings and request user authorization, including a delegation plan with subagent order and exact skills
+- Delegate to Developer for implementation only after the user explicitly approves the presented plan
+- Delegate to QA automatically after implementation and before any completion update
 - Handle blockers and escalation
 
 **Key Rules**:
@@ -55,15 +56,18 @@ The orchestrator acts as Manager and Tech Lead. It is the only agent that intera
 - Never edit files
 - In planning, confirm only scope changes or critical assumptions
 - Do not request confirmation for minor analysis/spec steps
+- Ask for explicit user confirmation when scope changes from the approved contract
+- Ask for explicit user confirmation for any critical assumption before delegating implementation
 - Request explicit apply authorization before delegation
+- Do not ask whether QA should run. QA is mandatory and automatic after implementation.
 
 ### 2. nas_researcher
 
 **Mode**: Subagent (hidden)
-**Permissions**: Read, search, webfetch, websearch; no edit, no bash
+**Permissions**: Read, search, webfetch, websearch, limited read-only bash (`git`, `curl`, `wget`); no edit
 
 **Operational handoff policy**:
-- Handoff is condition-based: **blocked, risk, or insufficient progress**.
+- Handoff is condition-based: **blocked, at risk, or insufficient progress**.
 
 The researcher exhaustively investigates the codebase and external sources. It does NOT produce Gherkin scenarios — that is the planner's job.
 
@@ -96,16 +100,16 @@ The researcher exhaustively investigates the codebase and external sources. It d
 **Permissions**: Read, search, write (Gherkin only), webfetch, websearch; no edit, no bash
 
 **Operational handoff policy**:
-- Handoff is condition-based: **blocked, risk, or insufficient progress**.
+- Handoff is condition-based: **blocked, at risk, or insufficient progress**.
 
-The planner designs the implementation strategy using SDD methodology. It receives the researcher's report and produces tagged Gherkin scenarios, technical design, and implementation tasks. It persists Gherkin feature files when enabled.
+The planner designs the implementation strategy using SDD methodology. It receives the researcher's report and produces tagged Gherkin scenarios, technical design, and implementation tasks. It is the only agent allowed to author or modify repository `.feature` files, and it persists Gherkin feature files only when the orchestrator-controlled persistence policy enables that pass.
 
 **Responsibilities**:
 - Analyze the research report and validate findings
 - Consult external documentation for design decisions (library APIs, best practices)
 - Design the implementation strategy and architecture decisions
 - Produce tagged Gherkin scenarios as acceptance contracts
-- Persist Gherkin feature files to `gherkin.storage_path` (when `gherkin.enabled`)
+- Persist Gherkin feature files to `gherkin.storage_path` only when the orchestrator-controlled `gherkin.persist_to_repo` contract authorizes repository writes
 - Define ordered implementation tasks for the developer
 - Update the plan and Gherkin files when re-delegated with user feedback
 
@@ -170,7 +174,7 @@ Feature: [Name]
 **Permissions**: Full edit, bash, webfetch
 
 **Operational handoff policy**:
-- Handoff is condition-based: **blocked, risk, or insufficient progress**.
+- Handoff is condition-based: **blocked, at risk, or insufficient progress**.
 
 The developer implements features using strict TDD methodology.
 
@@ -204,7 +208,7 @@ Action: [File changed or command executed]
 **Permissions**: Read, bash; no edit
 
 **Operational handoff policy**:
-- Handoff is condition-based: **blocked, risk, or insufficient progress**.
+- Handoff is condition-based: **blocked, at risk, or insufficient progress**.
 
 The QA agent validates implementation against specifications.
 
@@ -226,6 +230,7 @@ The QA agent validates implementation against specifications.
 <qa_status>
 Status: [APPROVED|REJECTED|BLOCKED]
 </qa_status>
+<fail_category>NONE|tests_fail|test_insufficiency|clean_code_warning|scope_creep|contract_violation|skill_violation|linter_fail|specs_drift|same_error|other</fail_category>
 <validation_details>
 (List of checks performed and evidence)
 </validation_details>
@@ -235,6 +240,48 @@ Status: [APPROVED|REJECTED|BLOCKED]
 </required_action>
 ```
 
+## Auto-Iteration System
+
+The orchestrator supports automatic iteration on certain failure categories to improve efficiency.
+
+### Fail Categories
+
+| Category | Description | Auto-Iterable? |
+|----------|-------------|----------------|
+| `tests_fail` | Test suite fails | Yes |
+| `test_insufficiency` | Gherkin/function/path/edge case coverage insufficient | Yes |
+| `clean_code_warning` | Linter/clean-code warnings present | Yes |
+| `skill_violation` | Skill guidance not applied conceptually | Yes |
+| `linter_fail` | Linter/formatter configured and failed | Yes (if configured) |
+| `scope_creep` | Files modified outside approved contract | No |
+| `contract_violation` | Implementation violates contract terms | No |
+| `specs_drift` | Specs/features/*.feature out of sync with implementation | No |
+| `same_error` | Identical issue persists after iteration | No |
+| `other` | Unclassified failure | No |
+
+### Iteration Rules
+
+1. **Max iterations**: 2 auto-iterations maximum before forced escalation
+2. **Same error detection**: If the same `fail_category` persists after 2 iterations, escalate immediately
+3. **Orchestrator coordination**: The orchestrator tracks `auto_iteration_count` and `last_fail_category` in checkpoints
+4. **No consent required**: Auto-iterable failures do NOT require user consent — the orchestrator informs the user
+5. **First retry guarantee**: The first auto-iterable QA FAIL always triggers retry 1/2
+6. **`same_error` timing**: Treat `same_error` as meaningful only after at least one completed auto-iteration
+
+### User Notifications
+
+- **Auto-iteration**: "Automatically retrying after QA failure in [category] (retry N/2)."
+- **Forced escalation (max)**: "Maximum auto-iterations reached (2/2) — escalating to the user."
+- **Category changed**: "QA failure category changed from [last_category] to [category]. This may indicate a different issue than the one being auto-iterated, so I’m escalating to you instead of retrying automatically."
+- **Pattern detected**: "Repeated QA failure pattern detected after retry 2/2 — escalating to the user."
+
+### Checkpoint State for Auto-Iteration
+
+```yaml
+auto_iteration_count: 0  # Increments on auto-iteration, resets on escalation or PASS
+last_fail_category: NONE # Compared for same-error detection
+```
+
 ## Project Configuration
 
 NAS requires a mandatory project config file at `.agents/nas.config.yaml`. This file configures memory, mind spaces, Gherkin persistence, and modification policies.
@@ -242,7 +289,7 @@ NAS requires a mandatory project config file at `.agents/nas.config.yaml`. This 
 ### Config Schema
 
 ```yaml
-version: "1.2"  # Required: config schema version
+version: "1.1"  # Required: config schema version
 
 memory:
   enabled: true  # Enable/disable enhanced memory
@@ -252,14 +299,14 @@ mind_spaces:
   project_space:
     enabled: true
     name: "projects/<repo-name>"
-    description: "Project context, decisions, and session checkpoints"
+    description: "Project context, decisions, architecture, and session checkpoints"
 
 gherkin:
   enabled: true
   storage_path: "specs/features"
   persist_to_repo:
-    when: "on_done"   # always | on_done | never
-    format: "merged"   # merged | delta (merged = final state only)
+    when: "on_done"   # always = every planning/replanning pass; on_done = once the plan is finalized/approved before developer execution; never = delegation/output only
+    format: "merged"   # merged = canonical full .feature files; delta = reserved/experimental unless separately contracted
   include:
     - "product/*"
     - "application/*"
@@ -283,13 +330,13 @@ config_policy:
 
 ### First-Run Enforcement
 
-First run = whenever NAS runs and `.agents/nas.config.yaml` is missing.
+Startup always checks `.agents/nas.config.yaml` before any normal workflow.
 
 **On startup, the orchestrator MUST:**
 1. Check for config existence
-2. If missing: halt workflow, ask user for authorization to create
+2. If missing: halt normal workflow, ask user for authorization to create
 3. On authorization: delegate config creation to `nas_developer` (orchestrator has no write tools)
-4. If not authorized: refuse to proceed
+4. If not authorized: refuse to proceed without it
 
 ### Config Modification Policy
 
@@ -299,10 +346,21 @@ First run = whenever NAS runs and `.agents/nas.config.yaml` is missing.
 
 ### Runtime Config Propagation
 
-The orchestrator passes enabled config sections to subagents:
-- Only include blocks where `enabled: true`
-- Exception: when task is specifically to edit config, pass full config
-- Subagents use `mind_spaces` config for memory integration
+When delegating runtime config to subagents, pass `version` plus only the
+enabled `memory`, `mind_spaces`, and `gherkin` blocks.
+
+- Do not pass disabled config blocks unless the task is config editing.
+- Subagents use `mind_spaces` config for memory integration.
+
+### Gherkin persistence contract
+
+The orchestrator decides whether repository Gherkin persistence happens via `gherkin.persist_to_repo`. The planner is the only agent allowed to author or modify repository `.feature` files. Developer and QA consume persisted Gherkin read-only, and QA remains mandatory before completion.
+
+- `when: always` => planner writes/updates repo feature files on each planning/replanning pass
+- `when: on_done` => planner writes/updates repo feature files once the plan is finalized/approved for implementation, before developer execution
+- `when: never` => no repo writes; Gherkin stays in delegation/output only
+- `format: merged` => persisted files are full canonical `.feature` files for developer and QA consumption
+- `format: delta` => reserved/experimental unless separately contracted
 
 ## Authorization System
 
@@ -347,10 +405,33 @@ apply_authorization:
 - After one feature is applied, new features require new authorization
 - Prior approvals do NOT auto-apply to subsequent changes
 - Each change scope is explicitly named in the authorization
+- Never delegate to nas_developer until the implementation plan has been presented to the user and the user has explicitly approved it.
+- After any implementation by nas_developer, delegate to nas_qa automatically before reporting completion, summarizing success, or asking for next steps.
+
+### Skill assignment contract
+
+The orchestrator builds the Skill Assignment Contract before delegating to
+`nas_planner`. That contract is user-visible when the plan is presented, and it
+includes a delegation plan that lists each subagent, the execution order, and
+the exact skills assigned to that subagent.
+
+Skill discovery must search repo-local skill sources (`.opencode/skills/`,
+`.agents/skills/`, `.claude/skills/`) and runtime/global available skills so
+skills like `prompt-optimizer` remain discoverable.
+
+Determine skills from the current task, discovered capabilities, and
+user-approved constraints.
+
+Do not inject permanent named-skill defaults into the Skill Assignment
+Contract. Task-specific skill assignments stay explicit in the approved
+delegation plan.
+
+Delegation prompts and handoffs must echo the exact approved skills for each
+subagent.
 
 ## Structured handoff extension (compatible)
 
-To preserve compatibility, existing XML contracts stay intact and agents may append a structured handoff block when blocked, risk, or insufficient progress is present:
+To preserve compatibility, existing XML contracts stay intact and agents may append a structured handoff block when blocked, at risk, or insufficient progress is present:
 
 ```xml
 <operational_handoff>
@@ -432,7 +513,7 @@ If any memory backend is configured/available, agents MUST use it and MUST NOT f
 | read | ✗ | ✓ | ✓ | ✓ | ✓ |
 | write | ✗ | ✗ | ✓ (Gherkin only) | ✓ | ✗ |
 | edit | ✗ | ✗ | ✗ | ✓ | ✗ |
-| bash | ✗ | ✗ | ✗ | ✓ | ✓ |
+| bash | ✗ | Limited read-only (`git`, `curl`, `wget`) | ✗ | ✓ | ✓ |
 | webfetch | ✓ | ✓ | ✓ | ✓ | ✓ |
 | websearch | ✗ | ✓ | ✓ | ✗ | ✗ |
 | task | ✓ (restricted) | ✗ | ✗ | ✗ | ✗ |
@@ -537,9 +618,34 @@ User Request
 Developer ──fix──► QA ──approve──► Orchestrator ──notify──► User
      ▲              │
      │              └──reject──► Developer (fix loop)
+     │                              │
+     │                    [auto-iterable?]
+     │                         │
+     │              ┌───────────┴───────────┐
+     │              │                       │
+     │         [count < 2]              [count >= 2]
+     │              │                       │
+     │     Auto-iterate               Escalate to User
+     │     + inform user
      │
      └──block──► Orchestrator ──clarify──► User
 ```
+
+### Auto-Iteration Escalation
+
+When QA returns a FAIL verdict:
+
+1. **Auto-iterable categories** (`tests_fail`, `test_insufficiency`, `clean_code_warning`, `skill_violation`, `linter_fail` when configured):
+   - If `auto_iteration_count == 0`: re-delegate to developer, then QA for retry 1/2
+   - If `auto_iteration_count < 2` and the category matches `last_fail_category`: re-delegate to developer, then QA
+   - If `count >= 2` or the category changes: escalate to user
+
+2. **Non-auto-iterable categories** (`scope_creep`, `contract_violation`, `specs_drift`, `same_error`, `other`):
+   - Escalate to user immediately
+
+3. **`same_error` timing**: only treat `same_error` as meaningful after at least one completed auto-iteration
+
+4. **On PASS**: reset `auto_iteration_count` to 0 and `last_fail_category` to NONE
 
 ## Anti-Hallucination Mechanisms
 
