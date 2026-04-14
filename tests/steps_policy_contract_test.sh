@@ -43,7 +43,8 @@ do
   assert_not_contains "$file" "soft thresholds"
 
   # Scenario: Handoff remains and is condition-based
-  assert_contains "$file" "blocked, risk, or insufficient progress"
+  assert_contains "$file" "blocked, at risk, or insufficient progress"
+  assert_not_contains "$file" "blocked, risk, or insufficient progress"
   # Scenario: Mandatory handoff format to orchestrator
   assert_contains "$file" "current_progress"
   assert_contains "$file" "remaining_work"
@@ -59,7 +60,8 @@ assert_not_contains "docs/AGENTS.md" "<=10"
 assert_not_contains "docs/AGENTS.md" ">=20"
 assert_not_contains "docs/AGENTS.md" ">=27"
 assert_contains "docs/AGENTS.md" "handoff"
-assert_contains "docs/AGENTS.md" "blocked, risk, or insufficient progress"
+assert_contains "docs/AGENTS.md" "blocked, at risk, or insufficient progress"
+assert_not_contains "docs/AGENTS.md" "blocked, risk, or insufficient progress"
 
 assert_not_contains "docs/architecture.md" "hard cap"
 assert_not_contains "docs/architecture.md" "soft thresholds"
@@ -67,7 +69,8 @@ assert_not_contains "docs/architecture.md" "<=10"
 assert_not_contains "docs/architecture.md" ">=20"
 assert_not_contains "docs/architecture.md" ">=27"
 assert_contains "docs/architecture.md" "handoff"
-assert_contains "docs/architecture.md" "blocked, risk, or insufficient progress"
+assert_contains "docs/architecture.md" "blocked, at risk, or insufficient progress"
+assert_not_contains "docs/architecture.md" "blocked, risk, or insufficient progress"
 
 assert_not_contains "README.md" "hard cap"
 assert_not_contains "README.md" "soft thresholds"
@@ -75,6 +78,7 @@ assert_not_contains "README.md" "<=10"
 assert_not_contains "README.md" ">=20"
 assert_not_contains "README.md" ">=27"
 assert_contains "README.md" "handoff"
-assert_contains "README.md" "blocked, risk, or insufficient progress"
+assert_contains "README.md" "blocked, at risk, or insufficient progress"
+assert_not_contains "README.md" "blocked, risk, or insufficient progress"
 
 echo "PASS: operational handoff policy contract checks"

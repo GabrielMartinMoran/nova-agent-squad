@@ -21,90 +21,100 @@ assert_not_contains() {
   fi
 }
 
-# Scenario: Orchestrator has mandatory config section with schema
-assert_contains "src/agents/Nova Agent Squad.md" "Mandatory Project Config"
-assert_contains "src/agents/Nova Agent Squad.md" ".agents/nas.config.yaml"
-assert_contains "src/agents/Nova Agent Squad.md" "version:"
+# Scenario: Canonical project-space description is aligned everywhere
+for file in \
+  "src/agents/Nova Agent Squad.md" \
+  "README.md" \
+  "docs/architecture.md"; do
+  assert_contains "$file" ".agents/nas.config.yaml"
+  assert_contains "$file" \
+    "description: \"Project context, decisions, architecture, and session checkpoints\""
+done
 
-# Scenario: Config schema includes memory provider config
-assert_contains "src/agents/Nova Agent Squad.md" "memory:"
-assert_contains "src/agents/Nova Agent Squad.md" "provider: mind"
+# Scenario: Repository config matches the documented contract
+assert_contains ".agents/nas.config.yaml" "version: \"1.1\""
+assert_contains ".agents/nas.config.yaml" "provider: mind"
+assert_contains ".agents/nas.config.yaml" "name: \"projects/nova-agent-squad\""
+assert_contains ".agents/nas.config.yaml" "storage_path: \"specs/features\""
+assert_contains ".agents/nas.config.yaml" "persist_to_repo:"
+assert_contains ".agents/nas.config.yaml" 'when: "on_done"   # always = every planning/replanning pass; on_done = once the plan is finalized/approved before developer execution; never = delegation/output only'
+assert_contains ".agents/nas.config.yaml" 'format: "merged"   # merged = canonical full .feature files; delta = reserved/experimental unless separately contracted'
+assert_contains ".agents/nas.config.yaml" "include:"
+assert_contains ".agents/nas.config.yaml" "exclude:"
+assert_contains ".agents/nas.config.yaml" "sdd:"
+assert_contains ".agents/nas.config.yaml" "require_confirmation: true"
 
-# Scenario: Config schema includes mind spaces (project space for memories and checkpoints)
-assert_contains "src/agents/Nova Agent Squad.md" "mind_spaces:"
-assert_contains "src/agents/Nova Agent Squad.md" "project_space:"
+# Scenario: Gherkin persistence contract is explicit across prompts and docs
+assert_contains "src/agents/Nova Agent Squad.md" 'The orchestrator decides whether repository Gherkin persistence happens via `gherkin.persist_to_repo`.'
+assert_contains "src/agents/nas_planner.md" 'You are the only agent allowed to author or modify repository `.feature` files.'
+assert_contains "src/agents/nas_developer.md" 'Do NOT write or modify Gherkin feature files — the planner controls repository `.feature` authorship.'
+assert_contains "src/agents/nas_qa.md" 'Consume persisted Gherkin read-only. Never author or modify `.feature` files.'
+assert_contains "README.md" '`when: always` => planner writes/updates repo feature files on each planning/replanning pass'
+assert_contains "README.md" '`when: on_done` => planner writes/updates repo feature files once the plan is finalized/approved for implementation, before developer execution'
+assert_contains "README.md" '`when: never` => no repo writes; Gherkin stays in delegation/output only'
+assert_contains "README.md" '`format: merged` => persisted files are full canonical `.feature` files for developer and QA consumption'
+assert_contains "README.md" '`format: delta` => reserved/experimental unless separately contracted'
+assert_contains "docs/architecture.md" '`when: on_done` => planner writes/updates repo feature files once the plan is finalized/approved for implementation, before developer execution'
+assert_contains "docs/architecture.md" '`format: delta` => reserved/experimental unless separately contracted'
 
-# Scenario: Config schema includes gherkin persistence with filters
-assert_contains "src/agents/Nova Agent Squad.md" "gherkin:"
-assert_contains "src/agents/Nova Agent Squad.md" "include:"
-assert_contains "src/agents/Nova Agent Squad.md" "exclude:"
+# Scenario: Startup halts when config is missing
+assert_contains "src/agents/Nova Agent Squad.md" "If config missing"
+assert_contains "src/agents/Nova Agent Squad.md" "HALT normal workflow"
+assert_contains "src/agents/Nova Agent Squad.md" "authorization to create"
+assert_contains "src/agents/Nova Agent Squad.md" "NAS cannot proceed without config"
 
-# Scenario: Config schema includes config_policy
-assert_contains "src/agents/Nova Agent Squad.md" "config_policy:"
-assert_contains "src/agents/Nova Agent Squad.md" "require_confirmation:"
+assert_contains "README.md" "halts"
+assert_contains "README.md" "asks for authorization"
+assert_contains "README.md" "refuses to proceed without it"
 
-# Scenario: First-run enforcement defined
-assert_contains "src/agents/Nova Agent Squad.md" "First-Run Enforcement"
-assert_contains "src/agents/Nova Agent Squad.md" "First run** is defined as"
+assert_contains "docs/architecture.md" "halt normal workflow"
+assert_contains "docs/architecture.md" "authorization to create"
+assert_contains "docs/architecture.md" "proceed without it"
 
-# Scenario: Startup config check in workflow
-assert_contains "src/agents/Nova Agent Squad.md" "Startup: Config Check"
-assert_contains "src/agents/Nova Agent Squad.md" "HALT all normal workflow"
+# Scenario: Config changes always require explicit confirmation
+for file in \
+  "src/agents/Nova Agent Squad.md" \
+  "README.md" \
+  "docs/architecture.md"; do
+  assert_contains "$file" "explicit user confirmation"
+  assert_contains "$file" "nas_developer"
+done
 
-# Scenario: Config modification requires confirmation
-assert_contains "src/agents/Nova Agent Squad.md" "Config Modification"
-assert_contains "src/agents/Nova Agent Squad.md" "requires explicit user confirmation"
+# Scenario: Runtime config propagation stays explicit and minimal
+assert_contains "src/agents/Nova Agent Squad.md" \
+  'Pass `version`, then `memory`, `mind_spaces`, `gherkin` (only where `enabled: true`)'
+assert_contains "src/agents/Nova Agent Squad.md" \
+  "Do not pass disabled config blocks unless the task is config editing"
 
-# Scenario: Orchestrator delegates config writes to developer
-assert_contains "src/agents/Nova Agent Squad.md" "delegate the write to \`nas_developer\`"
+assert_contains "README.md" \
+  'When delegating runtime config, pass `version` plus only the enabled'
+assert_contains "README.md" \
+  '`memory`, `mind_spaces`, and `gherkin` blocks. Do not pass disabled config'
+assert_contains "README.md" \
+  "blocks unless the task is config editing."
 
-# Scenario: Config Field Explanations section exists (new requirement)
-assert_contains "src/agents/Nova Agent Squad.md" "### Config Field Explanations"
-assert_contains "src/agents/Nova Agent Squad.md" "**\`version\`**: Config schema version"
-assert_contains "src/agents/Nova Agent Squad.md" "memory.enabled"
-assert_contains "src/agents/Nova Agent Squad.md" "memory.provider"
-assert_contains "src/agents/Nova Agent Squad.md" "mind_spaces.project_space"
-assert_contains "src/agents/Nova Agent Squad.md" "gherkin.enabled"
-assert_contains "src/agents/Nova Agent Squad.md" "gherkin.include"
-assert_contains "src/agents/Nova Agent Squad.md" "gherkin.exclude"
-assert_contains "src/agents/Nova Agent Squad.md" "config_policy.require_confirmation"
+assert_contains "docs/architecture.md" \
+  'When delegating runtime config to subagents, pass `version` plus only'
+assert_contains "docs/architecture.md" \
+  'enabled `memory`, `mind_spaces`, and `gherkin` blocks.'
+assert_contains "docs/architecture.md" \
+  "Do not pass disabled config blocks unless the task is config editing."
 
-# Scenario: Quick Start Defaults section exists (new requirement)
-assert_contains "src/agents/Nova Agent Squad.md" "### Quick Start Defaults"
-assert_contains "src/agents/Nova Agent Squad.md" "version: \"1.1\""
-assert_contains "src/agents/Nova Agent Squad.md" "provider: mind"
-assert_contains "src/agents/Nova Agent Squad.md" "name: \"projects/myproject\""
-assert_contains "src/agents/Nova Agent Squad.md" "storage_path: \"specs/features\""
-
-# Scenario: Monorepo guidance with package-level examples
-assert_contains "src/agents/Nova Agent Squad.md" "packages/api/specs/features"
-
-# Scenario: Runtime config propagation section exists
-assert_contains "src/agents/Nova Agent Squad.md" "Runtime Config Propagation"
-
-# Scenario: Optimization - do not pass disabled blocks
-assert_contains "src/agents/Nova Agent Squad.md" "DO NOT pass config blocks that are disabled"
-
-# Scenario: Exception for config editing tasks
-assert_contains "src/agents/Nova Agent Squad.md" "task purpose is specifically to edit the config file"
-
-# Scenario: What you should never do includes config items
-assert_contains "src/agents/Nova Agent Squad.md" "Proceed without checking for project config"
-assert_contains "src/agents/Nova Agent Squad.md" "Skip first-run config creation flow"
-assert_contains "src/agents/Nova Agent Squad.md" "Write config files yourself"
-
-# Scenario: Built artifacts include config schema
+# Scenario: Generated artifact matches the canonical source contract
 assert_contains "dist/platforms/opencode/agents/Nova Agent Squad.md" ".agents/nas.config.yaml"
-assert_contains "dist/platforms/opencode/agents/Nova Agent Squad.md" "Runtime Config Propagation"
+assert_contains "dist/platforms/opencode/agents/Nova Agent Squad.md" "version: \"1.1\""
+assert_contains "dist/platforms/opencode/agents/Nova Agent Squad.md" "persist_to_repo:"
+assert_contains "dist/platforms/opencode/agents/Nova Agent Squad.md" 'The orchestrator decides whether repository Gherkin persistence happens via `gherkin.persist_to_repo`.'
+assert_contains "dist/platforms/opencode/agents/Nova Agent Squad.md" "Do not pass disabled"
 
-# Scenario: Architecture docs document the config
-assert_contains "docs/architecture.md" "Project Configuration"
-assert_contains "docs/architecture.md" "First-Run Enforcement"
-assert_contains "docs/architecture.md" "Runtime Config Propagation"
+# Scenario: Architecture drift is removed
+assert_not_contains "docs/architecture.md" "version: \"1.2\""
+assert_not_contains "docs/architecture.md" \
+  'description: "Project context, decisions, and session checkpoints"'
 
-# Scenario: README documents the config
-assert_contains "README.md" "Project Configuration"
-assert_contains "README.md" "First-Run Enforcement"
-assert_contains "README.md" "Config Modification"
+# Scenario: Default quality gate runs the kept contract tests
+assert_contains "Makefile" "bash tests/project_config_contract_test.sh"
+assert_contains "Makefile" "bash tests/prompt_remediation_contract_test.sh"
+assert_contains "Makefile" "bash tests/qa_verification_dimensions_contract_test.sh"
 
 echo "PASS: project config contract checks"

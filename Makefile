@@ -92,6 +92,9 @@ doctor:
 
 test:
 	@$(MAKE) build TARGET=opencode
+	@bash tests/project_config_contract_test.sh
+	@bash tests/prompt_remediation_contract_test.sh
+	@bash tests/qa_verification_dimensions_contract_test.sh
 	@bash tests/centralized_architecture_contract_test.sh
 	@bash tests/final_cleanup_contract_test.sh
 	@bash tests/multiplatform_install_contract_test.sh

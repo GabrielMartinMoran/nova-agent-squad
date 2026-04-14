@@ -86,7 +86,7 @@ permission:
 
 For `nas_researcher`, `nas_planner`, `nas_developer`, and `nas_qa`:
 
-- Handoff triggers are condition-based: **blocked, risk, or insufficient progress**.
+- Handoff triggers are condition-based: **blocked, at risk, or insufficient progress**.
 
 ### Structured handoff (compatible contract extension)
 
@@ -112,6 +112,32 @@ When updating the orchestrator prompt, keep this behavior aligned with docs and 
 - Do not ask confirmation for minor analysis/spec steps.
 - Keep the apply gate question exact: "Implementation plan is ready. Do you want me to apply it now?"
 - Keep single-use authorization per scope and never auto-approve new scopes.
+- Never delegate to `nas_developer` until the implementation plan has been presented to the user and explicitly approved.
+- After any implementation, delegate to `nas_qa` automatically before reporting completion or asking for next steps.
+- Do not ask whether QA should run. QA is mandatory and automatic after implementation.
+- Build the Skill Assignment Contract — which skills are relevant, which subagent needs them — before delegating to `nas_planner`.
+- Present a delegation plan to the user that lists each subagent, execution order, and exact approved skills.
+- Use a task-specific skill assignment contract for every approved plan.
+- Search repo-local and runtime/global skills so `prompt-optimizer` remains discoverable.
+- Echo the exact approved skills in delegation prompts and handoffs.
+- Determine skills from the current task, discovered capabilities, and user-approved constraints.
+- Do not inject permanent named-skill defaults into the Skill Assignment Contract.
+- Keep task-specific skill assignments explicit in the approved delegation plan.
+
+## Gherkin persistence contract
+
+Keep Gherkin persistence rules aligned across prompts, docs, config comments, and
+tests.
+
+- The orchestrator decides whether repository Gherkin persistence happens via `gherkin.persist_to_repo`.
+- The planner is the only agent allowed to author or modify repository `.feature` files.
+- Developer and QA consume persisted Gherkin read-only.
+- QA remains mandatory before completion.
+- `when: always` => planner writes/updates repo feature files on each planning/replanning pass
+- `when: on_done` => planner writes/updates repo feature files once the plan is finalized/approved for implementation, before developer execution
+- `when: never` => no repo writes; Gherkin stays in delegation/output only
+- `format: merged` => persisted files are full canonical `.feature` files for developer and QA consumption
+- `format: delta` => reserved/experimental unless separately contracted
 
 ### Adding a New Rule
 
@@ -210,6 +236,7 @@ Action: [Description]
 <qa_status>
 Status: [APPROVED|REJECTED|BLOCKED]
 </qa_status>
+<fail_category>NONE|tests_fail|test_insufficiency|clean_code_warning|scope_creep|contract_violation|skill_violation|linter_fail|specs_drift|same_error|other</fail_category>
 <validation_details>
 (Checks performed...)
 </validation_details>
@@ -217,6 +244,48 @@ Status: [APPROVED|REJECTED|BLOCKED]
 (Next steps...)
 </required_action>
 ```
+
+## Auto-Iteration System
+
+Nova Agent Squad supports automatic iteration on certain failure categories to improve efficiency.
+
+### Fail Categories
+
+| Category | Description | Auto-Iterable? |
+|----------|-------------|----------------|
+| `tests_fail` | Test suite fails | Yes |
+| `test_insufficiency` | Gherkin/function/path/edge case coverage insufficient | Yes |
+| `clean_code_warning` | Linter/clean-code warnings present | Yes |
+| `scope_creep` | Files modified outside approved contract | No |
+| `contract_violation` | Implementation violates contract terms | No |
+| `skill_violation` | Skill mandamentos not followed in implementation | Yes |
+| `linter_fail` | Linter/formatter configured and failed | Yes (if configured) |
+| `specs_drift` | Specs/features/*.feature out of sync with implementation | No |
+| `same_error` | Identical issue persists after iteration | No |
+| `other` | Unclassified failure | No |
+
+### Auto-Iteration Rules
+
+1. **Max iterations**: 2 auto-iterations maximum before forced escalation
+2. **Same error detection**: If the same `fail_category` persists after 2 iterations, escalate immediately
+3. **Orchestrator coordination**: The orchestrator tracks `auto_iteration_count` and `last_fail_category` in checkpoints
+4. **No consent required**: Auto-iterable failures do NOT require user consent — the orchestrator informs the user
+5. **Linter special case**: `linter_fail` is auto-iterable only if a linter is configured; if no linter exists, it becomes a WARNING (recommendation only) rather than a blocker
+6. **First retry guarantee**: The first auto-iterable QA FAIL always triggers retry 1/2
+7. **`same_error` timing**: Treat `same_error` as meaningful only after at least one completed auto-iteration
+
+### Category-Specific Notes
+
+- **`skill_violation`**: QA validates skill mandamentos conceptually; violations are auto-iterable
+- **`linter_fail`**: If linter is configured → auto-iterable; if no linter → WARNING with recommendation
+- **`specs_drift`**: NOT auto-iterable — requires human decision (escalate to user) or planner re-delegation
+
+### User Notifications
+
+- **Auto-iteration**: "Automatically retrying after QA failure in [category] (retry N/2)."
+- **Forced escalation (max)**: "Maximum auto-iterations reached (2/2) — escalating to the user."
+- **Category changed**: "QA failure category changed from [last_category] to [category]. This may indicate a different issue than the one being auto-iterated, so I’m escalating to you instead of retrying automatically."
+- **Pattern detected**: "Repeated QA failure pattern detected after retry 2/2 — escalating to the user."
 
 ## Troubleshooting
 
