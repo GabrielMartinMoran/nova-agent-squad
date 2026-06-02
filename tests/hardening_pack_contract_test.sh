@@ -43,6 +43,10 @@ assert_not_contains_text() {
 
 orchestrator_file="dist/platforms/opencode/agents/Nova Agent Squad.md"
 frontmatter="$(awk 'BEGIN{c=0} /^---$/ {c++; if (c==2) exit; next} c==1 {print}' "$orchestrator_file")"
+planner_file="src/agents/nas_planner.md"
+planner_frontmatter="$(awk 'BEGIN{c=0} /^---$/ {c++; if (c==2) exit; next} c==1 {print}' "$planner_file")"
+built_planner_file="dist/platforms/opencode/agents/nas_planner.md"
+built_planner_frontmatter="$(awk 'BEGIN{c=0} /^---$/ {c++; if (c==2) exit; next} c==1 {print}' "$built_planner_file")"
 
 # Scenario: Orchestrator denies edit and bash
 assert_contains_text "$frontmatter" "edit: deny" "$orchestrator_file frontmatter"
@@ -54,6 +58,19 @@ assert_contains_text "$frontmatter" '"nas_researcher": allow' "$orchestrator_fil
 assert_contains_text "$frontmatter" '"nas_developer": allow' "$orchestrator_file frontmatter"
 assert_contains_text "$frontmatter" '"nas_qa": allow' "$orchestrator_file frontmatter"
 assert_not_contains_text "$frontmatter" '"nas_orchestrator": allow' "$orchestrator_file frontmatter"
+
+# Scenario: Planner write scope uses valid edit permissions for only *.feature files
+assert_not_contains_text "$planner_frontmatter" "tools:" "$planner_file frontmatter"
+assert_contains_text "$planner_frontmatter" '"*": deny' "$planner_file frontmatter"
+assert_contains_text "$planner_frontmatter" '"*.feature": allow' "$planner_file frontmatter"
+assert_not_contains_text "$planner_frontmatter" "write: allow" "$planner_file frontmatter"
+assert_not_contains_text "$planner_frontmatter" "edit: deny" "$planner_file frontmatter"
+
+assert_not_contains_text "$built_planner_frontmatter" "tools:" "$built_planner_file frontmatter"
+assert_contains_text "$built_planner_frontmatter" '"*": deny' "$built_planner_file frontmatter"
+assert_contains_text "$built_planner_frontmatter" '"*.feature": allow' "$built_planner_file frontmatter"
+assert_not_contains_text "$built_planner_frontmatter" "write: allow" "$built_planner_file frontmatter"
+assert_not_contains_text "$built_planner_frontmatter" "edit: deny" "$built_planner_file frontmatter"
 
 # Scenario: Hard guardrails block workaround paths when denied tools or missing authorization occur
 assert_contains "$orchestrator_file" "If any required action needs a denied tool, abort that path and escalate to user."

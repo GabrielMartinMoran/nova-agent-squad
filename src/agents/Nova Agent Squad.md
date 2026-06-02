@@ -104,6 +104,9 @@ Key fields:
 - `mind_spaces.project_space`: named `projects/<repo-name>` — stores decisions, architecture, checkpoints
 - `gherkin.storage_path`: single-package: `specs/features`; monorepo: `<package>/specs/features`
 - `gherkin.persist_to_repo`: the orchestrator decides whether repository Gherkin persistence happens; `always` writes every planning/replanning pass, `on_done` writes once the plan is finalized/approved before developer execution, and `never` keeps Gherkin in delegation/output only
+- For OpenCode, planner write permissions use `permission.edit` with a `*.feature` allowlist. Do not use `permission.write`.
+- `when: always` is the lightweight mode for persisted pre-implementation review artifacts.
+- `when: on_done` is approval-gated and does NOT persist repo `.feature` files before implementation approval.
 - `gherkin.persist_to_repo.format`: `merged` writes canonical full `.feature` files for developer and QA consumption; `delta` is reserved/experimental unless separately contracted
 - `gherkin.include` / `gherkin.exclude`: optional filters for persisted feature files
 - `sdd`: enables change-memory + delta tracking for session-driven development

@@ -47,14 +47,23 @@ assert_contains ".agents/nas.config.yaml" "require_confirmation: true"
 # Scenario: Gherkin persistence contract is explicit across prompts and docs
 assert_contains "src/agents/Nova Agent Squad.md" 'The orchestrator decides whether repository Gherkin persistence happens via `gherkin.persist_to_repo`.'
 assert_contains "src/agents/nas_planner.md" 'You are the only agent allowed to author or modify repository `.feature` files.'
+assert_contains "src/agents/nas_planner.md" 'Write only repository `*.feature` files'
+assert_contains "src/agents/Nova Agent Squad.md" '`when: always` is the lightweight mode for persisted pre-implementation review artifacts.'
+assert_contains "src/agents/Nova Agent Squad.md" '`when: on_done` is approval-gated and does NOT persist repo `.feature` files before implementation approval.'
+assert_contains "src/agents/nas_planner.md" '`when: always` is the lightweight mode for persisted pre-implementation review artifacts.'
+assert_contains "src/agents/nas_planner.md" '`when: on_done` is approval-gated and does NOT persist repo `.feature` files before implementation approval.'
 assert_contains "src/agents/nas_developer.md" 'Do NOT write or modify Gherkin feature files — the planner controls repository `.feature` authorship.'
 assert_contains "src/agents/nas_qa.md" 'Consume persisted Gherkin read-only. Never author or modify `.feature` files.'
 assert_contains "README.md" '`when: always` => planner writes/updates repo feature files on each planning/replanning pass'
+assert_contains "README.md" '`when: always` is the lightweight mode for persisted pre-implementation review artifacts.'
 assert_contains "README.md" '`when: on_done` => planner writes/updates repo feature files once the plan is finalized/approved for implementation, before developer execution'
+assert_contains "README.md" '`when: on_done` is approval-gated and does NOT persist repo `.feature` files before implementation approval.'
 assert_contains "README.md" '`when: never` => no repo writes; Gherkin stays in delegation/output only'
 assert_contains "README.md" '`format: merged` => persisted files are full canonical `.feature` files for developer and QA consumption'
 assert_contains "README.md" '`format: delta` => reserved/experimental unless separately contracted'
 assert_contains "docs/architecture.md" '`when: on_done` => planner writes/updates repo feature files once the plan is finalized/approved for implementation, before developer execution'
+assert_contains "docs/architecture.md" '`when: always` is the lightweight mode for persisted pre-implementation review artifacts.'
+assert_contains "docs/architecture.md" '`when: on_done` is approval-gated and does NOT persist repo `.feature` files before implementation approval.'
 assert_contains "docs/architecture.md" '`format: delta` => reserved/experimental unless separately contracted'
 
 # Scenario: Startup halts when config is missing
