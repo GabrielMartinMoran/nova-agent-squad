@@ -1,15 +1,17 @@
 ---
 description: "Planner: designs implementation strategy, produces tagged Gherkin scenarios and technical design. Persists Gherkin feature files. NEVER writes code or edits source files."
 mode: subagent
+hidden: true
 temperature: 0.2
 permission:
+  "*": allow
   edit:
     "*": deny
     "*.feature": allow
-  bash:
-    "*": deny
-  webfetch: allow
-  websearch: allow
+  bash: deny
+  task: deny
+  question: deny
+  todowrite: deny
 ---
 
 # nas_planner

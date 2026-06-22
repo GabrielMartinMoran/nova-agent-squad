@@ -1,20 +1,14 @@
 ---
 description: "Research: exhaustive investigation of codebase, documentation, and external sources. Maps impacted areas, evaluates feasibility, and produces comprehensive research reports. Read-only. NEVER writes code or edits files."
 mode: subagent
+hidden: true
 temperature: 0.4
-tools:
-  "*": true
-  write: false
-  edit: false
-  patch: false
-  task: false
-  question: false
-  todowrite: false
 permission:
+  "*": allow
   edit: deny
-  bash: allow
-  webfetch: allow
-  websearch: allow
+  task: deny
+  question: deny
+  todowrite: deny
 ---
 
 # nas_researcher
