@@ -131,10 +131,13 @@ tests.
 
 - The orchestrator decides whether repository Gherkin persistence happens via `gherkin.persist_to_repo`.
 - The planner is the only agent allowed to author or modify repository `.feature` files.
+- For OpenCode, planner write permissions use `permission.edit` with a `*.feature` allowlist. Do not use `permission.write`.
 - Developer and QA consume persisted Gherkin read-only.
 - QA remains mandatory before completion.
 - `when: always` => planner writes/updates repo feature files on each planning/replanning pass
 - `when: on_done` => planner writes/updates repo feature files once the plan is finalized/approved for implementation, before developer execution
+- `when: always` is the lightweight mode for persisted pre-implementation review artifacts.
+- `when: on_done` is approval-gated and does NOT persist repo `.feature` files before implementation approval.
 - `when: never` => no repo writes; Gherkin stays in delegation/output only
 - `format: merged` => persisted files are full canonical `.feature` files for developer and QA consumption
 - `format: delta` => reserved/experimental unless separately contracted
