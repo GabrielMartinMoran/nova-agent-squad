@@ -31,3 +31,4 @@ dist/
 *.bak
 *.backup
 .claude/settings.local.json
+examples/

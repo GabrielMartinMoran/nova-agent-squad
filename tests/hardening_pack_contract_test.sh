@@ -89,4 +89,17 @@ assert_contains "docs/architecture.md" "lower-trust model"
 assert_contains "docs/architecture.md" "Roles requiring high-compliance"
 assert_contains "docs/architecture.md" "Recommended behavior for lower-trust models"
 
+# Scenario: Orchestrator has read permission for nas.config.yaml only
+assert_contains_text "$frontmatter" '".agents/nas.config.yaml": allow' "$orchestrator_file frontmatter"
+assert_contains_text "$frontmatter" 'websearch: allow' "$orchestrator_file frontmatter"
+assert_contains_text "$frontmatter" 'todowrite: true' "$orchestrator_file frontmatter"
+
+# Scenario: Researcher bash uses glob allowlist
+researcher_file="src/agents/nas_researcher.md"
+researcher_frontmatter="$(awk 'BEGIN{c=0} /^---$/ {c++; if (c==2) exit; next} c==1 {print}' "$researcher_file")"
+assert_contains_text "$researcher_frontmatter" '"git *": allow' "$researcher_file frontmatter"
+assert_contains_text "$researcher_frontmatter" '"curl *": allow' "$researcher_file frontmatter"
+assert_contains_text "$researcher_frontmatter" '"wget *": allow' "$researcher_file frontmatter"
+assert_contains_text "$researcher_frontmatter" '"*": deny' "$researcher_file frontmatter"
+
 echo "PASS: hardening pack contract checks"

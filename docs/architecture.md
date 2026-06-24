@@ -515,12 +515,12 @@ If any memory backend is configured/available, agents MUST use it and MUST NOT f
 
 | Tool | Orchestrator | Researcher | Planner | Developer | QA |
 |------|-------------|-----------|---------|----------|-----|
-| read | ✗ | ✓ | ✓ | ✓ | ✓ |
+| read | ✓ (`.agents/nas.config.yaml` only) | ✓ | ✓ | ✓ | ✓ |
 | write | ✗ | ✗ | ✓ (Gherkin only) | ✓ | ✗ |
 | edit | ✗ | ✗ | ✗ | ✓ | ✗ |
-| bash | ✗ | Limited read-only (`git`, `curl`, `wget`) | ✗ | ✓ | ✓ |
+| bash | ✗ | Limited read-only | ✗ | ✓ | ✓ |
 | webfetch | ✓ | ✓ | ✓ | ✓ | ✓ |
-| websearch | ✗ | ✓ | ✓ | ✗ | ✗ |
+| websearch | ✓ | ✓ | ✓ | ✗ | ✗ |
 | task | ✓ (restricted) | ✗ | ✗ | ✗ | ✗ |
 | grep/glob | ✗ | ✓ | ✓ | ✓ | ✓ |
 

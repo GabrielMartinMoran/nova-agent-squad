@@ -3,18 +3,12 @@ description: "QA: verifies tests, contract compliance, Gherkin alignment, and qu
 mode: subagent
 hidden: true
 temperature: 0.1
-tools:
-  "*": true
-  write: false
-  edit: false
-  patch: false
-  task: false
-  question: false
-  todowrite: false
 permission:
+  "*": allow
   edit: deny
-  bash: allow
-  webfetch: allow
+  task: deny
+  question: deny
+  todowrite: deny
 ---
 
 # nas_qa
