@@ -9,11 +9,6 @@ permission:
   task: deny
   question: deny
   todowrite: deny
-  bash:
-    "git *": allow
-    "curl *": allow
-    "wget *": allow
-    "*": deny
 ---
 
 # nas_researcher
