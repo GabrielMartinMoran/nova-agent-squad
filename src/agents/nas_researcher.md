@@ -9,6 +9,9 @@ permission:
   task: deny
   question: deny
   todowrite: deny
+  write:
+    "*": deny
+    "/tmp/*": allow
 ---
 
 # nas_researcher
