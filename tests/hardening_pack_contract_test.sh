@@ -92,7 +92,7 @@ assert_contains "docs/architecture.md" "Recommended behavior for lower-trust mod
 # Scenario: Orchestrator has read permission for nas.config.yaml only
 assert_contains_text "$frontmatter" '".agents/nas.config.yaml": allow' "$orchestrator_file frontmatter"
 assert_contains_text "$frontmatter" 'websearch: allow' "$orchestrator_file frontmatter"
-assert_contains_text "$frontmatter" 'todowrite: true' "$orchestrator_file frontmatter"
+assert_contains_text "$frontmatter" 'todowrite: allow' "$orchestrator_file frontmatter"
 
 # Scenario: Researcher bash uses glob allowlist
 researcher_file="src/agents/nas_researcher.md"

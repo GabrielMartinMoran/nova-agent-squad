@@ -105,5 +105,6 @@ test:
 	@bash tests/hardening_pack_contract_test.sh
 	@bash tests/native_subagents_contract_test.sh
 	@bash tests/memory_policy_contract_test.sh
+	@bash tests/caveman_reference_contract_test.sh
 	@bash tests/doctor_contract_test.sh
 	@bash tests/make_help_targets_contract_test.sh

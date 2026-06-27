@@ -5,6 +5,12 @@ All notable changes to Nova Agent Squad will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- Added caveman INJECTION architecture: build-time `sed` injection of caveman rules into agent markdown files at `<!-- INJECT:caveman_developer -->` and `<!-- INJECT:caveman_qa -->` markers, making caveman rules part of the agent system prompt body (no `external_directory`, no `caveman_reference_read`).
+
 ## [1.0.0] - 2025-03-07
 
 ### Added

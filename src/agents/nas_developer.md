@@ -5,6 +5,8 @@ hidden: true
 temperature: 0.4
 permission:
   "*": allow
+  edit:
+    "*": allow
   task: deny
   question: deny
   todowrite: deny
@@ -62,6 +64,10 @@ When to run tests:
 - Before reporting completion — run full suite
 
 ## Runtime config
+
+### Caveman reference (mandatory)
+
+<!-- INJECT:caveman_developer -->
 
 ### Memory (mandatory)
 
