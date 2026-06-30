@@ -26,7 +26,7 @@ assert_not_contains() {
 }
 
 # Scenario: OpenCode build emits agents (but NOT per-agent caveman reference files).
-make build TARGET=opencode >/tmp/nas-caveman-build.log
+bun run src/cli/index.ts build --target=opencode >/tmp/nas-caveman-build.log
 assert_exists "dist/platforms/opencode/agents/nas_developer.md"
 assert_exists "dist/platforms/opencode/agents/nas_qa.md"
 
@@ -47,7 +47,7 @@ if [ -f "dist/platforms/opencode/references/nas_caveman.md" ]; then
 fi
 
 # Scenario: OpenCode install dry-run does NOT install per-agent caveman references.
-install_output="$(make install TARGET=opencode DRY_RUN=1 DESTDIR=/tmp/nas-caveman-contract 2>&1)"
+install_output="$(bun run src/cli/index.ts install --target=opencode --dry-run --destdir=/tmp/nas-caveman-contract 2>&1)"
 if echo "$install_output" | grep -Fq "nas_caveman_developer.md\|nas_caveman_qa.md"; then
   echo "FAIL: install should NOT reference per-agent caveman files (caveman is now inline)"
   exit 1
@@ -105,15 +105,13 @@ assert_not_contains "$QA_DIST" "caveman_reference_read"
 assert_not_contains "$DEV_DIST" "external_directory"
 assert_not_contains "$QA_DIST" "external_directory"
 
-# Scenario: Template source has SHARED, AGENT:developer, and AGENT:qa markers.
-TEMPLATE="src/references/nas_caveman.md.tmpl"
+# Scenario: Eta template source has developer and qa agent-specific sections.
+TEMPLATE="src/cli/templates/nas_caveman.eta"
 assert_exists "$TEMPLATE"
-assert_contains "$TEMPLATE" "<!-- BEGIN SHARED -->"
-assert_contains "$TEMPLATE" "<!-- END SHARED -->"
-assert_contains "$TEMPLATE" "<!-- BEGIN AGENT:developer -->"
-assert_contains "$TEMPLATE" "<!-- END AGENT:developer -->"
-assert_contains "$TEMPLATE" "<!-- BEGIN AGENT:qa -->"
-assert_contains "$TEMPLATE" "<!-- END AGENT:qa -->"
+assert_contains "$TEMPLATE" "if (it.agent === 'developer'"
+assert_contains "$TEMPLATE" "else if (it.agent === 'qa'"
+assert_contains "$TEMPLATE" "## Developer"
+assert_contains "$TEMPLATE" "## QA"
 
 # Scenario: Shared content exists in both built dist agents (inlined from template).
 # Attribution

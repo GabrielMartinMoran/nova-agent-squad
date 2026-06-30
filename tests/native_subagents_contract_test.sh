@@ -48,8 +48,8 @@ assert_contains "docs/installation-matrix.md" "runtime subagent"
 # Scenario: README documents centralized source/build/install flow and platform prerequisites
 assert_contains "README.md" "src/agents"
 assert_contains "README.md" "config/platforms.manifest"
-assert_contains "README.md" "make build TARGET=all"
-assert_contains "README.md" "make install TARGET=opencode"
+assert_contains "README.md" "nas build"
+assert_contains "README.md" "nas install --target=opencode"
 assert_contains "README.md" "experimental.enableAgents"
 assert_contains "README.md" "Kiro CLI"
 

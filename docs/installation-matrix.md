@@ -11,7 +11,7 @@ This matrix defines the currently supported installation/distribution targets fo
 
 | Platform | Status | Installation artifact/template | Limitations |
 |---|---|---|---|
-| OpenCode | GA | `src/agents/*` -> `dist/platforms/opencode/agents/*` -> `make install TARGET=opencode` | Canonical runtime; fully validated install flow and baseline parity target. |
+| OpenCode | GA | `src/agents/*` -> `dist/platforms/opencode/agents/*` -> `nas install --target=opencode` | Canonical runtime; fully validated install flow and baseline parity target. |
 | Cursor | Beta | `src/templates/platforms/cursor/AGENTS.md.tmpl` -> `dist/platforms/cursor/AGENTS.md` | Generated template; adapt to workspace conventions before production use. |
 | Cursor CLI Agent | Beta | `dist/platforms/cursor-cli-agent/AGENTS.md` | Supported through `rules` + `AGENTS` conventions; exact invocation UX may vary by version. |
 | Claude Code | Experimental | `dist/platforms/claude-code/CLAUDE.md` | Template is bootstrap-oriented; confirm actual command/runtime hooks in your environment. |

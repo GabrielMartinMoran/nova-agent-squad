@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-make build TARGET=opencode >/tmp/nas-build-opencode-rename.log
+bun run src/cli/index.ts build --target=opencode >/tmp/nas-build-opencode-rename.log
 
 assert_exists() {
   local path="$1"
@@ -32,14 +32,11 @@ assert_contains "dist/platforms/opencode/agents/Nova Agent Squad.md" '"nas_devel
 assert_contains "dist/platforms/opencode/agents/Nova Agent Squad.md" '"nas_qa": allow'
 assert_contains "dist/platforms/opencode/agents/Nova Agent Squad.md" "invoke nas_developer"
 
-# Scenario 3: Makefile references new branding and IDs
-assert_contains "Makefile" "Nova Agent Squad - Makefile"
-assert_contains "Makefile" "Nova Agent Squad agents"
-assert_contains "Makefile" "~/.config/opencode/agents/\"Nova Agent Squad.md\""
-assert_contains "Makefile" "~/.config/opencode/agents/nas_researcher.md"
-assert_contains "Makefile" "~/.config/opencode/agents/nas_developer.md"
-assert_contains "Makefile" "~/.config/opencode/agents/nas_qa.md"
-assert_contains "Makefile" "The default agent should be 'Nova Agent Squad'."
+# Scenario 3: CLI uses Nova Agent Squad branding and nas_* IDs
+assert_contains "src/cli/index.ts" "Nova Agent Squad CLI"
+assert_contains "src/cli/commands/uninstall.ts" "nas_researcher.md"
+assert_contains "src/cli/commands/uninstall.ts" "nas_developer.md"
+assert_contains "src/cli/commands/uninstall.ts" "nas_qa.md"
 
 # Scenario 4: Core documentation uses Nova Agent Squad and nas_* IDs
 assert_contains "README.md" "Nova Agent Squad"

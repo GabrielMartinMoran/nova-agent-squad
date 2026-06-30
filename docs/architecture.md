@@ -666,6 +666,7 @@ When QA returns a FAIL verdict:
 ### Roles requiring high-compliance
 
 - **Orchestrator** and **nas_developer** should run on a high-compliance model because they enforce authorization gates, permission contracts, and scope boundaries.
+- **nas_developer_mini** (experimental) is calibrated for smaller models with conservative posture, explicit escalation, and strong scope discipline. It handles only low-risk top-left L cells of the 2D routing matrix. QA validates mini and full developer paths identically.
 - **nas_planner** should run on a high-compliance model for precise specification writing and design decisions.
 - **nas_qa** should also prefer a high-compliance model for strict rejection/approval behavior tied to test evidence.
 

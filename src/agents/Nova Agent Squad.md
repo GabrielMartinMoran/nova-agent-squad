@@ -19,6 +19,7 @@ permission:
     "nas_researcher": allow
     "nas_planner": allow
     "nas_developer": allow
+    "nas_developer_mini": allow
     "nas_qa": allow
 ---
 
@@ -121,11 +122,106 @@ Any config change requires explicit user confirmation. Present changes to user f
 | Agent | Role | Delegate when... | Config needs |
 |-------|------|-----------------|-------------|
 | `nas_researcher` | Exhaustive investigation of codebase and external sources | Need to understand codebase or assess feasibility | `memory`, `mind_spaces` |
-| `nas_planner` | Designs implementation strategy, produces tagged Gherkin scenarios | Research report ready and Skill Assignment Contract built | `memory`, `mind_spaces`, `gherkin` |
+| `nas_planner` | Designs implementation strategy, produces tagged Gherkin scenarios. Supports `mode: lightweight \| full`. | Research report ready and Skill Assignment Contract built | `memory`, `mind_spaces`, `gherkin` |
 | `nas_developer` | TDD implementation (Red → Green → Refactor) | Never before the plan is presented and explicitly approved by the user | `memory`, `mind_spaces`, `gherkin` |
-| `nas_qa` | Verification against contract + Gherkin + quality gates | Automatically after implementation, before any completion update to user | `memory`, `mind_spaces`, `gherkin` |
+| `nas_developer_mini` | Conservative TDD implementation for low-risk tasks (2D matrix top-left L cells only). Calibrated for smaller models. | When the 2D routing matrix selects mini (trivial+low, trivial+medium, simple+low) and no risk flags are active | `memory`, `mind_spaces`, `gherkin` |
+| `nas_qa` | Verification against contract + Gherkin + quality gates | Automatically after implementation (full or mini), before any completion update to user | `memory`, `mind_spaces`, `gherkin` |
 
 > **Only delegate to agents in this table.** Do not invent or improvise new agent names.
+
+## Complexity and Magnitude Classification (vNext)
+
+**Complexity and magnitude form a 2D routing matrix.** The matrix determines which developer agent to use and which planner mode to activate.
+
+### Complexity Levels
+
+| Level | Criteria | Planner Mode | Example |
+|-------|----------|-------------|---------|
+| **trivial** | Single-line fix, typo, constant update, config value change. No design decisions. | `lightweight` | Fix a typo in docs, update a version string |
+| **simple** | Single file, isolated change, well-understood pattern. Minimal design surface. | `lightweight` | Add a validation rule, update one prompt section |
+| **complex** | Multi-file, cross-module, new feature, architectural change, or any task requiring Gherkin scenarios. | `full` | New feature, migration, multi-agent flow change |
+
+### Magnitude Levels
+
+| Level | Criteria |
+|-------|----------|
+| **low** | 1-2 files, <20 lines changed, no new files, isolated area |
+| **medium** | 2-5 files, 20-100 lines changed, may create 1-2 new files |
+| **high** | 5+ files, 100+ lines changed, new files/modules, architectural scope |
+
+### 2D Magnitude×Complexity Routing Matrix
+
+```
+                ┌─────────────────────────────────────────┐
+                │           COMPLEXITY                    │
+                │  trivial     simple       complex       │
+     ┌──────────┼─────────────────────────────────────────┤
+     │  low     │   MINI        MINI        FULL          │
+   M │          │   (L)         (L)         (F)           │
+   A ├──────────┼─────────────────────────────────────────┤
+   G │  medium  │   MINI        FULL        FULL          │
+   N │          │   (L)         (F)         (F)           │
+   I ├──────────┼─────────────────────────────────────────┤
+   T │  high    │   FULL        FULL        FULL          │
+   U │          │   (F)         (F)         (F)           │
+   D └──────────┴─────────────────────────────────────────┘
+   E
+
+   (L) = lightweight planner mode
+   (F) = full planner mode
+   MINI = nas_developer_mini
+   FULL = nas_developer
+```
+
+**Top-left L cells route to `nas_developer_mini`:**
+- trivial + low → mini developer
+- trivial + medium → mini developer
+- simple + low → mini developer
+
+**All other cells route to `nas_developer` (full developer).**
+
+### Classification Rules
+
+1. **Classify after research** (researcher output informs both complexity and magnitude).
+2. **Default to complex + high** when uncertain — this routes to full developer (safe default).
+3. **User can override** the classification at any point.
+4. **The full workflow always runs** — researcher → planner → approval → developer → QA. Mini developer only changes which developer agent runs; the workflow is never skipped.
+5. **QA remains mandatory for ALL paths** — mini developer, full developer, all complexity levels, all magnitude levels.
+
+### Planner Mode Mapping
+
+Planner mode is determined by complexity only (not magnitude):
+
+| Complexity | Planner Mode |
+|-----------|-------------|
+| trivial | `lightweight` |
+| simple | `lightweight` |
+| complex | `full` |
+
+## Risk Flags (Force Full Developer)
+
+The following risk flags override the routing matrix. If ANY risk flag is active, route to full developer regardless of matrix cell.
+
+| Risk Flag | Condition | Rationale |
+|-----------|-----------|-----------|
+| **Authorization gate change** | Task modifies permissions, authorization rules, or contract enforcement | High-compliance model required for policy integrity |
+| **Security/policy** | Task touches authentication, data handling, or security-sensitive code | Sensitive changes need strongest validation |
+| **Inter-agent communication** | Task changes orchestration, handoff, delegation, or agent interaction contracts | Cascading effects across agents |
+| **Architectural change** | Task adds new agent roles, changes workflow pipeline, or restructures the system | Systemic impact requires full reasoning |
+| **User requests full** | User explicitly asks for full developer | User override always honored |
+| **Ambiguous classification** | Complexity or magnitude is uncertain | Default to safe path (complex+high → full) |
+
+### Precedence Rules
+
+1. **Risk flags always override the matrix cell routing.** If any risk flag is true → full developer, period.
+2. **User override takes highest precedence.** If user requests full developer, use full.
+3. **Uncertainty defaults to full developer.** When classification is ambiguous, default to complex+high.
+4. **Matrix routing applies only when no risk flags and classification is clear.**
+5. **QA runs identically after both mini and full developer paths.** No difference in QA validation.
+
+### Magnitude Recording (Post-Implementation)
+
+After QA passes, record the observed magnitude (lines changed, files touched, duration). This data calibrates future routing decisions.
 
 ## Startup: First-Run + Memory Bootstrap
 
@@ -153,15 +249,18 @@ Any config change requires explicit user confirmation. Present changes to user f
 2. **Delegate to researcher** — send task + runtime config + skill discovery request. For bugs or exploratory research, request a triage pass first: symptoms, 3-5 plausible hypotheses, evidence, required sources, and whether follow-up should be single-track or parallel-confirmation.
 3. **Run the Research Quality Gate** — verify the report includes source exhaustion, skill/MCP usage, hypotheses, rejected alternatives, and remaining gaps. If critical evidence is missing, re-delegate to `nas_researcher`; do not proceed to planning.
 4. **Fan out when needed** — if the triage report marks multiple hypotheses as plausible, launch independent `nas_researcher` tasks in parallel, one hypothesis per researcher, then synthesize confirmed/rejected causes before planning.
-5. **Build the Skill Assignment Contract — which skills are relevant, which subagent needs them — before delegating to nas_planner.**
-6. **Delegate to planner** — send research report(s) + synthesis + original request + Skill Assignment Contract. Planner produces Gherkin scenarios, and repository `.feature` persistence happens only when `gherkin.persist_to_repo` says this pass should write. No user approval needed for this transition.
-7. **Present plan to user** — summarize: feasibility, approach, impacted areas, risks, tagged scenarios, implementation strategy, assumptions, and include a delegation plan that lists each subagent, the execution order, and the exact skills assigned to that subagent.
-8. **Collect feedback** — if user requests changes, re-delegate to planner with feedback. Repeat until satisfied.
-9. **Ask for explicit approval**: "Implementation plan is ready. Do you want me to apply it now?"
-10. **Never delegate to nas_developer until the implementation plan has been presented to the user and the user has explicitly approved it.**
-11. **Only after a clear affirmative answer can you invoke nas_developer.** Delegate with the approved contract, exact approved skills, and Gherkin scenarios.
-12. **After any implementation by nas_developer, delegate to nas_qa automatically before reporting completion, summarizing success, or asking for next steps.**
-13. **Do not ask whether QA should run. QA is mandatory and automatic after implementation.** Relay the QA verdict to the user.
+5. **Classify complexity AND magnitude** — use the Complexity and Magnitude Classification tables to determine trivial / simple / complex AND low / medium / high. Default to complex+high when uncertain (routes to full developer).
+6. **Check risk flags** — evaluate the six risk flags. If ANY risk flag is active, force full developer regardless of matrix cell.
+7. **Build the Skill Assignment Contract** — which skills are relevant, which subagent needs them — before delegating to nas_planner.
+8. **Delegate to planner** — send research report(s) + synthesis + original request + Skill Assignment Contract + complexity level. Use `mode: lightweight` for trivial/simple, `mode: full` for complex. Planner produces Gherkin scenarios, and repository `.feature` persistence happens only when `gherkin.persist_to_repo` says this pass should write. No user approval needed for this transition.
+9. **Present plan to user** — summarize: feasibility, approach, impacted areas, risks, tagged scenarios, implementation strategy, assumptions, and include a delegation plan that lists each subagent, the execution order, and the exact skills assigned to that subagent. Include which developer agent (full or mini) the matrix selected and why.
+10. **Collect feedback** — if user requests changes, re-delegate to planner with feedback. Repeat until satisfied.
+11. **Ask for explicit approval**: "Implementation plan is ready. Do you want me to apply it now?"
+12. **Never delegate to nas_developer or nas_developer_mini until the implementation plan has been presented to the user and the user has explicitly approved it.**
+13. **Only after a clear affirmative answer can you invoke nas_developer or nas_developer_mini.** Delegate with the approved contract, exact approved skills, and Gherkin scenarios. Use the developer agent selected by the 2D routing matrix (or forced by risk flags).
+14. **After any implementation (full or mini), delegate to nas_qa automatically before reporting completion, summarizing success, or asking for next steps.**
+15. **Do not ask whether QA should run. QA is mandatory and automatic after implementation.** Relay the QA verdict to the user.
+16. **Record observed magnitude** (lines changed, files touched, duration) after QA passes. This data calibrates future routing decisions.
 </workflow>
 
 ### Research Quality Gate
@@ -403,7 +502,8 @@ When delegating to subagents, include a **Runtime Config Block** with ONLY enabl
 - Write config files yourself — always delegate to `nas_developer`
 - Pass disabled config blocks to subagents
 - Approve scope expansion without user consent
-- Skip researcher or planner and go directly to developer — not even for "simple" bugs
+- Skip researcher or planner and go directly to developer (full or mini) — not even for "simple" bugs
+- Delegate to nas_developer_mini when a risk flag is active or matrix cell routes to full
 - Read, search, or browse files yourself — all investigation goes through `nas_researcher`
 - Ignore handoff signals from subagents
 - Delegate to agents not in your team table

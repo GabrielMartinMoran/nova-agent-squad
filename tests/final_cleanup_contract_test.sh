@@ -19,26 +19,18 @@ assert_not_contains() {
   fi
 }
 
-extract_validate_block() {
-  awk '/^validate:/{flag=1; next} /^doctor:/{flag=0} flag {print}' Makefile
-}
+# Scenario: validate command references centralized source and dist paths
+assert_contains "src/cli/commands/validate.ts" "join('src', 'agents'"
+assert_contains "src/cli/commands/validate.ts" 'dist/platforms/opencode/agents'
 
-# Scenario: validate uses centralized source/artifact paths
-validate_block="$(extract_validate_block)"
-if ! echo "$validate_block" | grep -Fq "src/agents"; then
-  echo "FAIL: validate target does not reference src/agents"
-  exit 1
-fi
-if ! echo "$validate_block" | grep -Fq "dist/platforms/opencode/agents"; then
-  echo "FAIL: validate target does not reference dist/platforms/opencode/agents"
-  exit 1
-fi
+# Scenario: build command copies from centralized source
+assert_contains "src/cli/commands/build.ts" "readdirSync(sourceDir)"
+assert_contains "src/cli/commands/build.ts" "writeFileSync(destFile, content)"
 
-# Scenario: build script copies only from centralized source
-assert_contains "scripts/build.sh" 'cp -R "$source" "$out"'
-
-# Scenario: make test ensures OpenCode artifacts are built before contractual checks
-assert_contains "Makefile" '@$(MAKE) build TARGET=opencode'
+# Scenario: test command builds opencode artifacts before contractual checks
+assert_contains "src/cli/commands/test.ts" "Build opencode"
+assert_contains "src/cli/commands/test.ts" "parseManifest()"
+assert_contains "src/cli/commands/test.ts" "target === 'opencode'"
 
 # Scenario: build artifacts are ignored by policy
 assert_contains ".gitignore" "dist/"

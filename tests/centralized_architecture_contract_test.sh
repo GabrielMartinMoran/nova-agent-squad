@@ -41,14 +41,14 @@ assert_exists "src/templates/platforms/vscode/nas.instructions.md.tmpl"
 assert_exists "config/platforms.manifest"
 
 # Scenario: build by target emits expected outputs under dist/
-make build TARGET=opencode >/tmp/nas-build-opencode.log
+bun run src/cli/index.ts build --target=opencode >/tmp/nas-build-opencode.log
 assert_exists "dist/platforms/opencode/agents/Nova Agent Squad.md"
 assert_exists "dist/platforms/opencode/agents/nas_researcher.md"
 assert_exists "dist/platforms/opencode/agents/nas_planner.md"
 assert_exists "dist/platforms/opencode/agents/nas_developer.md"
 assert_exists "dist/platforms/opencode/agents/nas_qa.md"
 
-make build TARGET=cursor >/tmp/nas-build-cursor.log
+bun run src/cli/index.ts build --target=cursor >/tmp/nas-build-cursor.log
 assert_exists "dist/platforms/cursor/AGENTS.md"
 assert_contains "dist/platforms/cursor/AGENTS.md" "nas_orchestrator"
 assert_contains "dist/platforms/cursor/AGENTS.md" "nas_researcher"
@@ -57,12 +57,12 @@ assert_contains "dist/platforms/cursor/AGENTS.md" "nas_developer"
 assert_contains "dist/platforms/cursor/AGENTS.md" "nas_qa"
 
 # Scenario: install by target resolves destination from central manifest and supports dry-run
-install_output="$(make install TARGET=cursor DRY_RUN=1 DESTDIR=/tmp/nas-contract-test 2>&1)"
+install_output="$(bun run src/cli/index.ts install --target=cursor --dry-run --destdir=/tmp/nas-contract-test 2>&1)"
 echo "$install_output" | grep -Fq "DRY-RUN"
 echo "$install_output" | grep -Fq "/tmp/nas-contract-test/.cursor/agents"
 
 # Scenario: OpenCode remains canonical install flow
-opencode_install_output="$(make install TARGET=opencode DRY_RUN=1 DESTDIR=/tmp/nas-contract-test 2>&1)"
+opencode_install_output="$(bun run src/cli/index.ts install --target=opencode --dry-run --destdir=/tmp/nas-contract-test 2>&1)"
 echo "$opencode_install_output" | grep -Fq "/tmp/nas-contract-test/.config/opencode/agents"
 
 # Scenario: legacy per-platform source artifacts were removed from repo

@@ -2,7 +2,6 @@
 
 <!-- Adapted from Julius Brussee's Caveman skill: https://github.com/JuliusBrussee/caveman/blob/main/skills/caveman/SKILL.md -->
 
-<!-- BEGIN SHARED -->
 Use short, plain prose for agent work notes. visible/intermediate prose only. Inspired by original full Caveman, not broad ultra. Speed and clarity. Preserve auditability and evidence.
 
 Short words. Short sentences. Few fillers. Direct verbs. Keep context for audit and QA. Use normal technical terms when clearer. Do not claim hidden reasoning-token savings.
@@ -27,9 +26,8 @@ Expand: `Blocked. Memory unavailable. Contract requires read-only memory verific
 
 ## Conflict
 If task conflicts with this reference, obey higher-priority task contract and report conflict.
-<!-- END SHARED -->
 
-<!-- BEGIN AGENT:developer -->
+<% if (it.agent === 'developer') { -%>
 ## Developer
 Use this style for brief progress notes. Keep test names, commands, errors, files, APIs, and final `<implementation_report>` exact.
 
@@ -42,9 +40,7 @@ Bad:
 - `The presently executed red-phase validation appears to indicate...`
 - `Based on extensive analysis, it seems the code...`
 - `I would like to kindly suggest that perhaps we should consider...`
-<!-- END AGENT:developer -->
-
-<!-- BEGIN AGENT:qa -->
+<% } else if (it.agent === 'qa') { -%>
 ## QA
 QA is read-only. Caveman never authorizes edits. Use this style only for QA's own visible/intermediate verification prose. Keep final `<qa_verdict>`, evidence, logs, errors, filenames, XML/tags, and Gherkin exact.
 
@@ -57,4 +53,4 @@ Bad:
 - `Me see bad file change.` (too terse, loses audit trail)
 - `The verification procedures have been methodically executed...`
 - `It is my considered opinion that...`
-<!-- END AGENT:qa -->
+<% } -%>

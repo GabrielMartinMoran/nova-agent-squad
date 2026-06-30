@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-make build TARGET=opencode >/tmp/nas-build-project-config.log
+bun run src/cli/index.ts build --target=opencode >/tmp/nas-build-project-config.log
 
 assert_contains() {
   local file="$1"
@@ -121,9 +121,10 @@ assert_not_contains "docs/architecture.md" "version: \"1.2\""
 assert_not_contains "docs/architecture.md" \
   'description: "Project context, decisions, and session checkpoints"'
 
-# Scenario: Default quality gate runs the kept contract tests
-assert_contains "Makefile" "bash tests/project_config_contract_test.sh"
-assert_contains "Makefile" "bash tests/prompt_remediation_contract_test.sh"
-assert_contains "Makefile" "bash tests/qa_verification_dimensions_contract_test.sh"
+# Scenario: Default quality gate runs contract tests via nas test
+# nas test reads all .sh files from tests/ dynamically
+assert_contains "src/cli/commands/test.ts" "testDir = 'tests'"
+assert_contains "src/cli/commands/test.ts" "endsWith('.sh')"
+assert_contains "src/cli/commands/test.ts" "spawnSync"
 
 echo "PASS: project config contract checks"

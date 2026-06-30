@@ -94,8 +94,7 @@ When a **Skill Assignment Contract** is received (skills list in delegation prom
 
 **Detection order:**
 1. Check `package.json` for linter/formatter scripts (npm run lint, etc.)
-2. Check `Makefile` for lint targets
-3. Check for common config files: `.eslintrc`, `.prettierrc`, `ruff.toml`, `pyproject.toml`, `shellcheck`, etc.
+2. Check for common config files: `.eslintrc`, `.prettierrc`, `ruff.toml`, `pyproject.toml`, `shellcheck`, etc.
 4. If linter found: run it and report results
 5. If no linter found: recommend an appropriate linter/formatter for the detected project stack
 

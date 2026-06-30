@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-make build TARGET=opencode >/tmp/nas-build-opencode-orchestrator.log
+bun run src/cli/index.ts build --target=opencode >/tmp/nas-build-opencode-orchestrator.log
 
 assert_contains() {
   local file="$1"

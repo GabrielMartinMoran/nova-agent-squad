@@ -54,8 +54,7 @@ assert_contains "docs/installation-matrix.md" "Temporarily not viable"
 assert_contains "docs/installation-matrix.md" "no verifiable technical documentation"
 
 # Scenario: OpenCode without regressions in the main installation path
-assert_contains "README.md" "make install TARGET=opencode"
-assert_contains "Makefile" "TARGET ?= opencode"
-assert_contains "Makefile" "@bash scripts/install.sh"
+assert_contains "README.md" "nas install --target=opencode"
+assert_contains "src/cli/commands/install.ts" "resolveDest"
 
 echo "PASS: multiplatform installation contract checks"
